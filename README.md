@@ -1,6 +1,8 @@
 NOTE: This is generally written for a linux setup. If you're trying to get this rocking and rolling
 for Windows, you obviously may need to make some changes for Powershell, etc.
 
+---
+
 UPDATE: You've since moved on to using Stow. Which basically means most, if not all, of what's in
 this readme no longer applies to your dotfiles. Go through these steps only if you want to revert
 back to a bare git repo setup where you manage everything "through git". One of the main reasons you
