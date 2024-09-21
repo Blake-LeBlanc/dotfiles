@@ -86,7 +86,7 @@ dotfiles push
 
 You may need to run this'n to get the remote setup properly
 ```
-dotfiles remote add origin git@bitbucket.org:spectator6/dotfiles.git
+dotfiles remote add origin git@bitbucket.org:<account-name>/dotfiles.git
 ```
 
 # EXTRAS - How to intially build something like this
