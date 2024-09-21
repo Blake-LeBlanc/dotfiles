@@ -11,27 +11,49 @@ NOTE! Before you do this stuff, be sure you first have curl installed
 ($ sudo apt-get install curl). This is so that, when you do clone your .dotfiles
 repo, your .vimrc will have what it needs to run its built-in curl commands
 
-##################################################
 # PART 1 - How to pull from this repo from a fresh setup
-##################################################
 
-# First, you'll need to create an RSA key for your computer
+First, you'll need to create an RSA key for your computer
+
+```
 $ cd ~/.ssh # create this directory if it does not exist
 $ ssh-keygen
-# Then link that RSA key to your bitbucket repo by adding it to your profile
-# Copy and paste the output from the below command...
+```
+
+Then link that RSA key to your bitbucket repo by adding it to your profile
+Copy and paste the output from the below command...
+
+```
 $ cat ~/.ssh/<rsa name>.pub
-# Now that you have your RSA keys all ready to go, there's a good chance that
-#   your system is not yet associated with a particular RSA key. To remedy...
+```
+
+Now that you have your RSA keys all ready to go, there's a good chance that your system is not yet
+
+associated with a particular RSA key. To remedy...
+
+```
 $ ssh-add -l # displays your active RSA key for the system, if no identities...
 $ ssh-add ~/.ssh/<private_RSA_key_name>
 # example ssh-add ~/.ssh/laptop
-# Confirm with ssh-add -l
-# Check to make sure you have access to bitbucket with
+```
+
+Confirm with `ssh-add -l`
+
+Check to make sure you have access to bitbucket with
+
+```
 $ ssh -T git@bitbucket.org # verifies your active config and username
-# At this point you should be ready to make your pull from the repo
+```
+
+At this point you should be ready to make your pull from the repo
+
+```
 git clone --bare git@bitbucket.org:<account_username>/dotfiles.git $HOME/.dotfiles
-# Now setup a custom "git" tag, this will let you use dotfiles add, dotfiles pull, etc
+```
+
+Now setup a custom "git" tag, this will let you use dotfiles add, dotfiles pull, etc
+
+```
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 dotfiles config --local status.showUntrackedFiles no
 $ dotfiles checkout # This may warn that your .bashrc file would be overwritten by checkout,
@@ -40,29 +62,32 @@ $ dotfiles checkout # This may warn that your .bashrc file would be overwritten 
 $ fc-cache -f
 # And there you go! You should be all set!
 # Chances are, now you'll need to get your vim up and running, so open your .vimrc
+```
 
-####################################################
 # PART 2 - How to use
-####################################################
 
-# Since your home directory has so many files in it, you should NOT use add -A
-# Instead, you need to specify each file separately each time, like this...
+Since your home directory has so many files in it, you should NOT use add -A
 
+Instead, you need to specify each file separately each time, like this...
+
+```
 dotfiles status
 dotfiles add .vimrc
 dotfiles commit -m "Add .vimrc"
 dotfiles add .bashrc
 dotfiles commit -m "Add .bashrc"
 dotfiles push
+```
 
-# You may need to run this'n to get the remote setup properly
+You may need to run this'n to get the remote setup properly
+```
 dotfiles remote add origin git@bitbucket.org:spectator6/dotfiles.git
+```
 
-####################################################
 # EXTRAS - How to intially build something like this
-####################################################
 
-# You can use any directory/alias you want in place of <.dotfiles>
+You can use any directory/alias you want in place of <.dotfiles>
+```
 $ git init --bare $HOME/.dotfiles
 
 $ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
@@ -73,3 +98,4 @@ $ echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOM
 
 # That alias allows you to interact with your home directory as you would git,
 #   but instead of using "git <>" you use "dotfiles <>"
+```
