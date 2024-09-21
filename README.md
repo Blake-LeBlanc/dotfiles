@@ -1,3 +1,6 @@
+NOTE: This is generally written for a linux setup. If you're trying to get this rocking and rolling
+for Windows, you obviously may need to make some changes for Powershell, etc.
+
 UPDATE: You've since moved on to using Stow. Which basically means most, if not all, of what's in
 this readme no longer applies to your dotfiles. Go through these steps only if you want to revert
 back to a bare git repo setup where you manage everything "through git". One of the main reasons you
@@ -8,7 +11,7 @@ Still want to go ahead with this route? Cool, read away!  But if you'd rather se
 stow, refer to the initial installs up at the top of your reference file
 
 NOTE! Before you do this stuff, be sure you first have curl installed
-($ sudo apt-get install curl). This is so that, when you do clone your .dotfiles
+(`$ sudo apt-get install curl`). This is so that, when you do clone your .dotfiles
 repo, your .vimrc will have what it needs to run its built-in curl commands
 
 # PART 1 - How to pull from this repo from a fresh setup
