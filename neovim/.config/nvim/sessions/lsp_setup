@@ -1,0 +1,184 @@
+let SessionLoad = 1
+let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
+let v:this_session=expand("<sfile>:p")
+silent only
+silent tabonly
+cd ~/dotfiles
+if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
+  let s:wipebuf = bufnr('%')
+endif
+let s:shortmess_save = &shortmess
+if &shortmess =~ 'A'
+  set shortmess=aoOA
+else
+  set shortmess=aoO
+endif
+badd +9011 notes/notes.txt
+badd +8 neovim/.config/nvim/lua/user/plugins.lua
+badd +18 neovim/.config/nvim/lua/user/lsp/configs.lua
+badd +19 neovim/.config/nvim/lua/init.lua
+badd +8 bash/.bash_aliases
+badd +108 error.txt
+badd +1289 ~/.local/state/nvim/lsp.log
+badd +71 neovim/.config/nvim/lua/user/lsp/handlers.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_MASON.lua
+badd +18 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_NVIM_LSP_INSTALLER.lua
+badd +1 neovim/.config/nvim/lua/user/mason-tool-installer.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/settings/omnisharp.lua
+badd +135 ~/.cache/nvim/lsp-installer.log
+badd +44 ~/.local/share/nvim/site/pack/packer/start/nvim-lspconfig/lua/lspconfig/server_configurations/omnisharp.lua
+badd +3 ~/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim/lua/mason-lspconfig/server_configurations/omnisharp/init.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_CUSTOM.lua
+badd +1 desktop_environment_themes/gnome/.themes/equilux-theme-v20180110/Equilux/unity/launcher_arrow_rtl_19.svg
+badd +33 neovim/.config/nvim/lua/user/keymaps.lua
+badd +13 neovim/.config/nvim/lua/user/colorschemes.lua
+badd +10 neovim/.config/nvim/lua/user/options.lua
+badd +786 vim/.vimrc
+badd +1 neovim/.config/nvim/lua/user/fidget.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/settings/bashls.lua
+badd +1 neovim/.config/nvim/lua/user/leap.lua
+badd +33 neovim/.config/nvim/lua/user/todo-comments.lua
+badd +1 neovim/.config/nvim/lua/user/autopairs.lua
+badd +1 neovim/.config/nvim/lua/user/nnn.lua
+badd +103 neovim/.config/nvim/lua/user/lsp/settings/jsonls.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/init.lua
+badd +10 neovim/.config/nvim/lua/user/comment.lua
+badd +56 neovim/.config/nvim/lua/user/cmp.lua
+badd +534 neovim/.config/nvim/lua/user/fzf-lua.lua
+badd +11 neovim/.config/nvim/lua/user/nvim-surround.lua
+badd +1 neovim/.config/nvim/lua/user/gitsigns.lua
+badd +206 neovim/.config/nvim/lua/user/autocommands.lua
+badd +1 ~/go_example/hello/hello.go
+badd +1 notes
+badd +1 neovim/.config/nvim/lua/user/lsp
+badd +21 ~/go_example/stringutil/reverse.go
+badd +273 ~/.gvm/gos/go1.18.3/src/fmt/print.go
+badd +1 ~/hello.cs
+badd +1 /usr/bin/mono
+badd +17 neovim/.config/nvim/lua/user/lsp/settings/sumneko_lua.lua
+badd +1 ~/.local/share/nvim/lsp_servers/omnisharp/omnisharp-mono/OmniSharp.exe.config
+badd +11 neovim/.config/nvim/lua/user/mason.lua
+badd +1 ~/.cache/nvim/mason.log
+badd +1 neovim/.config/nvim_lunar/lua/user/lsp/configs.lua
+badd +197 ~/.local/share/nvim/site/pack/packer/start/nvim-lspconfig/doc/server_configurations.txt
+badd +1 ~/.local/share/nvim/site/pack/packer/start/mason.nvim/lua/mason-registry/index.lua
+badd +246 ~/.local/share/nvim/site/pack/packer/start/zenbones.nvim/colors/zenbones.vim
+badd +90 git/.gitconfig
+badd +207 ~/.local/share/nvim/mason/packages/lua-language-server/extension/server/meta/Lua\ 5.4\ en-us\ utf8/basic.lua
+badd +1 ~/.local/share/nvim/mason/packages/omnisharp/OmniSharp.Roslyn.dll
+badd +1 neovim/.config/nvim/lua/user/mason-tools-installer.lua
+badd +2 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_mono.lua
+argglobal
+%argdel
+edit neovim/.config/nvim/lua/user/lsp/configs.lua
+let s:save_splitbelow = &splitbelow
+let s:save_splitright = &splitright
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+let &splitbelow = s:save_splitbelow
+let &splitright = s:save_splitright
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 97 + 97) / 194)
+exe '2resize ' . ((&lines * 15 + 16) / 32)
+exe 'vert 2resize ' . ((&columns * 96 + 97) / 194)
+exe '3resize ' . ((&lines * 14 + 16) / 32)
+exe 'vert 3resize ' . ((&columns * 96 + 97) / 194)
+argglobal
+balt neovim/.config/nvim/lua/user/lsp/handlers.lua
+setlocal fdm=marker
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 10 - ((5 * winheight(0) + 15) / 30)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 10
+normal! 011|
+lcd ~/dotfiles
+wincmd w
+argglobal
+if bufexists(fnamemodify("~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/omnisharp_mono.lua", ":p")) | buffer ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/omnisharp_mono.lua | else | edit ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/omnisharp_mono.lua | endif
+if &buftype ==# 'terminal'
+  silent file ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/omnisharp_mono.lua
+endif
+balt ~/dotfiles/neovim/.config/nvim/lua/user/lsp/handlers.lua
+setlocal fdm=marker
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 2 - ((1 * winheight(0) + 7) / 15)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 2
+normal! 05|
+lcd ~/dotfiles
+wincmd w
+argglobal
+if bufexists(fnamemodify("~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/sumneko_lua.lua", ":p")) | buffer ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/sumneko_lua.lua | else | edit ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/sumneko_lua.lua | endif
+if &buftype ==# 'terminal'
+  silent file ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/sumneko_lua.lua
+endif
+balt ~/dotfiles/neovim/.config/nvim/lua/user/lsp/settings/omnisharp_MASON.lua
+setlocal fdm=marker
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 1 - ((0 * winheight(0) + 7) / 14)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 1
+normal! 0
+lcd ~/dotfiles
+wincmd w
+exe 'vert 1resize ' . ((&columns * 97 + 97) / 194)
+exe '2resize ' . ((&lines * 15 + 16) / 32)
+exe 'vert 2resize ' . ((&columns * 96 + 97) / 194)
+exe '3resize ' . ((&lines * 14 + 16) / 32)
+exe 'vert 3resize ' . ((&columns * 96 + 97) / 194)
+tabnext 1
+if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
+  silent exe 'bwipe ' . s:wipebuf
+endif
+unlet! s:wipebuf
+set winheight=1 winwidth=20
+let &shortmess = s:shortmess_save
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
+let s:sx = expand("<sfile>:p:r")."x.vim"
+if filereadable(s:sx)
+  exe "source " . fnameescape(s:sx)
+endif
+let &g:so = s:so_save | let &g:siso = s:siso_save
+set hlsearch
+nohlsearch
+doautoall SessionLoadPost
+unlet SessionLoad
+" vim: set ft=vim :

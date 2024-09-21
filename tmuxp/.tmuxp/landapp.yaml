@@ -1,0 +1,49 @@
+session_name: landapp
+# start_directory: ./
+windows:
+  - window_name: tasks
+    focus: true
+    shell_command_before: cd ~/dotfiles
+    options:
+      automatic-rename: off
+    panes:
+      - task due
+  - window_name: dotfiles
+    layout: main-horizontal
+    options:
+      main-pane-height: 15
+      automatic-rename: off
+    shell_command_before:
+      - cd ~/dotfiles
+    panes:
+      # - update
+      # - vim
+      - nvim
+  - window_name: land_app
+    layout: main-horizontal
+    shell_command_before: cd ~/Programming/Projects/land_app
+    options:
+      main-pane-height: 40
+      automatic-rename: off
+    panes:
+      - pane
+      - pane
+  - window_name: server
+    layout: main-horizontal
+    shell_command_before: cd ~/Programming/Projects/land_app
+    options:
+      main-pane-height: 32
+      automatic-rename: off
+    panes:
+      - pane
+      # - pane
+  - window_name: logs
+    layout: main-horizontal
+    shell_command_before: cd ~/Programming/Projects/land_app
+    options:
+      main-pane-height: 25
+      automatic-rename: off
+    panes:
+      - tail -f log/test.log
+      - tail -f log/development.log
+

@@ -1,0 +1,11 @@
+[Scheme]
+Name=Custom Dark
+ColorForeground=#d3d7cf
+ColorBackground=#1d181e
+ColorPalette=#000000;#fc4b4b;#44aa44;#aa5500;#0039aa;#aa22aa;#1a92aa;#aaaaaa;#777777;#fe8686;#4ce64c;#ded82c;#295fcc;#cc58cc;#4ccce6;#d3d7cf
+ColorSelection=#163b59
+ColorSelectionUseDefault=FALSE
+ColorCursor=#0f4999
+ColorBold=#ffffff
+ColorBoldUseDefault=FALSE
+TabActivityColor=#0f4999

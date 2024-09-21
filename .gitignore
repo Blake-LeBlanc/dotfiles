@@ -1,0 +1,30 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+# NOTE: I don't think this is quite the right to handle this... It *could* work, but from what I'm reading, the proper way to
+# handle these sorts of conflicts is to use git's submodule powers
+
+# Ignore all plugin related files, let those be managed locally
+/vim/.vim/plugged/*
+/tmux/.tmux/plugins/*
+
+# Neovim related
+/neovim/.config/nvim/plugged/*
+/neovim/.config/nvim/.netrwhist
+
+# Ignore tags file
+tags
+
+# Ignore swapfiles
+*.sw?
+*~
+
+# Ignore workspace sessions
+Session*.vim
+
+# Ignore viminfo
+/vim/.viminfo
+
+# Ignore vifminfo
+/vifm/.vifm/vifminfo
+
+# Ignore elinks bookmarks
+/elinks/.elinks/bookmarks

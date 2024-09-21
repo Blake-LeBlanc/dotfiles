@@ -1,0 +1,280 @@
+# When using pcall
+Error detected while processing /home/linux/dotfiles/neovim/.config/nvim/init.vim:
+line    1:
+E5108: Error executing lua /home/linux/.config/nvim/lua/user/plugins.lua:34: attempt to index local 'packer' (a boolean value)
+stack traceback:
+        /home/linux/.config/nvim/lua/user/plugins.lua:34: in main chunk
+        [C]: in function 'require'
+        /home/linux/.config/nvim/lua/init.lua:3: in main chunk
+        [C]: in function 'require'
+        [string ":lua"]:1: in main chunk
+
+# When NOT using pcall, but calling the require directly
+Error detected while processing /home/linux/dotfiles/neovim/.config/nvim/init.vim:
+line    1:
+E5108: Error executing lua /home/linux/.config/nvim/lua/user/plugins.lua:47: attempt to index a boolean value
+stack traceback:
+        /home/linux/.config/nvim/lua/user/plugins.lua:47: in main chunk
+        [C]: in function 'require'
+        /home/linux/.config/nvim/lua/init.lua:3: in main chunk
+        [C]: in function 'require'
+        [string ":lua"]:1: in main chunk
+
+
+
+
+https://github.com/williamboman/mason.nvim/discussions/232{{{
+
+> First, thanks for the detailed report! It helps me tremendously
+
+Glad to hear it, you're welcome!
+
+> I can't really see any reasons for changing the cmd for Omnisharp. The docs in lspconfig suggest that it is necessary, but mason takes care of that for you.
+
+Oh very cool! That's good to know, awesome change!
+
+> Looking at the :LspInfo output at the end, it seems fine to me. Is the server not working with that setup?
+
+No, it doesn't seem to ever attach. The full-blown `:LspInfo` output confirms `0 client(s) to this buffer:` (full output at the bottom of this post)
+
+Before I dive into that though, let me take a quick moment to clarify something on my end.
+
+Looking back over your earlier post, I saw you had...
+```
+mason_lspconfig.setup({
+  ensure_installed = servers,
+})
+```
+
+Whenever I have it set up that way, none of the installed servers are recognized. When I open a related file, neovim immediately messages;
+```
+Spawning language server with cmd: `omnisharp-mono` failed. The language server is either not installed, missing from PATH, or not executable.
+```
+
+However, when I use the NON-masonized version:
+```
+lspconfig.setup({
+  ensure_installed = servers,
+})
+```
+The named servers are discovered and work okay (lua, bash, typescript, etc).
+
+But this leaves me with an "empty" `mason_lspconfig.setup()` call just sitting there doing nothing.
+
+I only kick-off with that just in case maybe there's something there on my end that's preventing the omnisharp/omnisharp-mono servers from working their magic.
+
+---
+
+Okay, so to dive back into omnisharp...
+
+Immediately upon loading a `*.cs` file, the following message displays across the bottom
+
+```
+Client 1 quit with exit code 2 and signal 0
+```
+
+So I pull up the logs and see...
+
+#### :LspLog
+```
+[START][2022-08-10 22:01:26] LSP logging initiated
+[ERROR][2022-08-10 22:01:26] .../vim/lsp/rpc.lua:439	"rpc"	"omnisharp-mono"	"stderr"	"Cannot open assembly '/home/linux/.local/share/nvim/mason/bin/omnisharp/OmniSharp.exe': Not a directory.\n"
+```
+
+Which actually seems consintent with mason's current (new?) directory structure. Because while it's looking for an omnisharp directory within `/bin`, it now looks to be laid out differently
+
+#### $ ls
+```
+(jobs:0) linux:/home/linux/.local/share/nvim/mason/bin
+$ ls
+total 12
+drwxr-xr-x 2 linux linux 4096 Aug 10 21:54 .
+drwxr-xr-x 5 linux linux 4096 Jul 28 16:36 ..
+lrwxrwxrwx 1 linux linux   71 Aug 10 21:53 bash-language-server -> ../packages/bash-language-server/node_modules/.bin/bash-language-server
+lrwxrwxrwx 1 linux linux   51 Aug 10 21:53 lua-language-server -> ../packages/lua-language-server/lua-language-server
+lrwxrwxrwx 1 linux linux   31 Aug 10 21:54 omnisharp -> ../packages/omnisharp/omnisharp
+lrwxrwxrwx 1 linux linux   30 Aug 10 21:54 omnisharp-mono -> ../packages/omnisharp-mono/run
+```
+
+And as we'd expect, `:LspInfo` shows it unattached
+#### :LspInfo
+```
+ Language client log: /home/linux/.local/state/nvim/lsp.log
+ Detected filetype:   cs
+
+ 0 client(s) attached to this buffer:
+
+ 2 active client(s) not attached to this buffer:
+
+ Client: sumneko_lua (id: 2, pid: 68593, bufnr: [17, 16, 8])
+ 	filetypes:       lua
+ 	autostart:       true
+ 	root directory:  /home/linux/dotfiles
+ 	cmd:             lua-language-server
+
+ Client: null-ls (id: 3, pid: 5001, bufnr: [17, 16, 8])
+ 	filetypes:       markdown, yaml, html, less, typescriptreact, javascriptreact, scss, javascript, css, typescript, graphql, vue, jsonc, json, handlebars, python, lua
+ 	autostart:       false
+ 	root directory:  /home/linux/dotfiles
+ 	cmd:             nvim
+
+ Other clients that match the filetype: cs
+
+ Config: omnisharp
+ 	filetypes:         cs, vb
+ 	root directory:    /home/linux/<redacted>
+ 	cmd:               omnisharp-mono -z -s /home/linux/<redacted> --hostPID 68548
+  DotNet:enablePackageRestore=false --encoding utf-8 --languageserver
+  FormattingOptions:EnableEditorConfigSupport=true
+  RoslynExtensionsOptions:EnableAnalyzersSupport=true Sdk:IncludePrereleases=true -z -s
+  /home/linux/<redacted> --hostPID 68548 DotNet:enablePackageRestore=false --encoding utf-8 --languageserver FormattingOptions:EnableEditorConfigSupport=true RoslynExtensionsOptions:EnableAnalyzersSupport=true Sdk:IncludePrereleases=true
+ 	cmd is executable: true
+ 	autostart:         true
+ 	custom handlers:
+
+ Configured servers list: sumneko_lua, omnisharp, bashls
+```
+
+Which, just for comparison, is different from what happens with `nvim-lsp-installer`. There, it will attach, the keymaps defined in `handlers.lua` work, it just won't do anything useful. Everything returns with "No information available".
+
+#### :LspInfo with nvim-lsp-installer
+```
+ Language client log: /home/linux/.local/state/nvim/lsp.log
+ Detected filetype:   cs
+
+ 1 client(s) attached to this buffer:
+
+ Client: omnisharp (id: 1, pid: 78287, bufnr: [4])
+ 	filetypes:       cs, vb
+ 	autostart:       true
+ 	root directory:  /home/linux/<redacted>
+ 	cmd:             mono /home/linux/.local/share/nvim/lsp_servers/omnisharp/omnisharp-mono/OmniSharp.exe --languageserver --hostPID 78259
+
+ Configured servers list: omnisharp, bashls, sumneko_lua
+```
+
+
+}}}
+
+
+
+NVIM-LSP-INSTALLER
+:LspInfo{{{
+   Language client log: /home/linux/.local/state/nvim/lsp.log
+   Detected filetype:   cs
+
+   1 client(s) attached to this buffer:
+
+   Client: omnisharp (id: 3, pid: 36903, bufnr: [12])
+    filetypes:       cs, vb
+    autostart:       true
+    root directory:  /home/linux/Programming/<redacted>
+    cmd:             mono /home/linux/.local/share/nvim/lsp_servers/omnisharp/omnisharp-mono/OmniSharp.exe --languageserver --hostPID 36806
+
+}}}
+
+handlers keymaps{{{
+  K
+    No information available
+
+}}}
+
+MASON
+:messages {{{
+When opening a .cs file
+  Spawning language server with cmd: `mono /home/linux/.local/share/nvim/mason/packages/omnisharp-mono/omnisharp/OmniSharp.exe` failed. The language server is either not installed, missing from PATH, or not executable.
+
+}}}
+
+:LspInfo{{{
+  Language client log: /home/linux/.local/state/nvim/lsp.log
+  Detected filetype:   cs
+
+  0 client(s) attached to this buffer:
+
+  Other clients that match the filetype: cs
+
+  Config: omnisharp
+    filetypes:         cs, vb
+    root directory:    /home/linux/<redacted>
+    cmd:               mono
+    /home/linux/.local/share/nvim/mason/packages/omnisharp-mono/omnisharp/OmniSharp.exe
+    --languageserver --hostPID 28177 -z -s /home/linux/<redacted> --hostPID 28177 DotNet:enablePackageRestore=false --encoding utf-8 --languageserver FormattingOptions:EnableEditorConfigSupport=true RoslynExtensionsOptions:EnableAnalyzersSupport=true Sdk:IncludePrereleases=true
+    cmd is executable: Unable to find executable. Please check your path and ensure the server is installed
+    autostart:         true
+    custom handlers:
+
+  Configured servers list: bashls, omnisharp, sumneko_lua, tsserver
+
+}}}
+
+handlers keymaps{{{
+  K
+
+}}}
+
+
+
+
+--------------------------------------------
+OLD{{{
+Error detected while processing /home/linux/dotfiles/neovim/.config/nvim/init.vim:
+line    1:
+E5108: Error executing lua vim/shared.lua:0: after the second argument: expected table, got boolean
+stack traceback:
+	[C]: in function 'error'
+	vim/shared.lua: in function 'validate'
+	vim/shared.lua: in function 'tbl_deep_extend'
+	/home/linux/.config/nvim/lua/user/lsp/configs.lua:30: in main chunk
+	[C]: in function 'require'
+	/home/linux/.config/nvim/lua/user/lsp/init.lua:6: in main chunk
+	[C]: in function 'require'
+	/home/linux/.config/nvim/lua/init.lua:12: in main chunk
+	[C]: in function 'require'
+	[string ":lua"]:1: in main chunk
+vim-hexokinase needs updating. Run `make hexokinase` in project root. See `:h hexokinase-installation` for more info.
+[nvim-lsp-installer] Installing LSP servers: csharp_ls, gopls, omnisharp
+clipboard: error invoking xclip: Waiting for selection requests, Control-C to quit   Waiting for selection request number 1
+
+
+:LspInstallInfo
+    ◍ gopls (failed)
+        can't load package: package golang.org/x/tools/gopls@latest: cannot use path@version syntax in GOPATH mode
+        spawn: go failed with exit code 1.
+
+
+  Pending servers (1)
+    ◍ omnisharp (failed)
+        mono was not found in path.
+        See https://www.mono-project.com/download/stable/ for installation instructions.
+        dotnet was not found in path.
+        See https://dotnet.microsoft.com/download for installation instructions.
+        Installation failed: system executable was not found.
+
+
+
+"~/Programming/Tutorials/hardman/ObstacleCourse2/Assets/Scripts/PlayerCamera.cs" [dos] 617L, 22841B
+Error executing luv callback:
+...art/nvim-lsp-installer/lua/nvim-lsp-installer/server.lua:149: Expected value but found T_END at character 1
+stack traceback:
+	[C]: in function 'decode'
+	...art/nvim-lsp-installer/lua/nvim-lsp-installer/server.lua:149: in function 'get_receipt'
+	...er/lua/nvim-lsp-installer/jobs/outdated-servers/init.lua:59: in function 'fn'
+	.../nvim-lsp-installer/lua/nvim-lsp-installer/jobs/pool.lua:21: in function 'dequeued'
+	.../nvim-lsp-installer/lua/nvim-lsp-installer/jobs/pool.lua:33: in function '_dequeue'
+	.../nvim-lsp-installer/lua/nvim-lsp-installer/jobs/pool.lua:36: in function '_done'
+	...er/lua/nvim-lsp-installer/jobs/outdated-servers/init.lua:56: in function 'complete'
+	...er/lua/nvim-lsp-installer/jobs/outdated-servers/init.lua:75: in function 'callback'
+	...lsp-installer/lua/nvim-lsp-installer/core/async/init.lua:84: in function 'cb'
+	...lsp-installer/lua/nvim-lsp-installer/core/async/init.lua:21: in function 'callback'
+	...im-lsp-installer/lua/nvim-lsp-installer/core/process.lua:144: in function <...im-lsp-installer/lua/nvim-lsp-installer/core/process.lua:136>
+
+Error detected while processing BufReadPost Autocommands for "*":
+Error executing lua callback: /usr/local/share/nvim/runtime/filetype.lua:20: Vim(lua):[lspconfig] cmd not defined for "omnisharp". Manually set cmd in the setup {} call according to server_configurations.md, see :help lspconfig-index.
+stack traceback:
+        [C]: in function 'nvim_buf_set_option'
+        /usr/local/share/nvim/runtime/filetype.lua:20: in function </usr/local/share/nvim/runtime/filetype.lua:11>
+
+}}}
+
+

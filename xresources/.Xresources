@@ -1,0 +1,149 @@
+UXTerm*bellIsUrgent: true
+UXTerm*backarrowKey: false
+UXTerm*ttyModes: erase ^?
+UXterm*saveLines: 4096
+UXTerm*metaSendsEscape: true
+UXTerm*eightBitInput: false
+UXTerm*locale: true
+/* UXTerm*faceName: Bitstream Vera Serif Mono */
+/* UXTerm*faceName: Ubuntu Mono */
+UXTerm*faceName: JetBrains Mono NL Regular
+UXTerm*faceSize: 10
+UXTerm*vt100.scaleHeight: 1.80
+UXTerm*vt100*geometry: 80x30
+UXTerm*loginShell: true
+UXTerm*charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
+/* UXTerm*termName: UXTerm-256color */
+UXTerm*cursorBlink: True
+UXTerm*selectToClipboard: true
+UXTerm*ScrollBar: false
+UXTerm*rightScrollBar: false
+UXTerm*multiScroll: on
+UXTerm*jumpScroll: on
+UXTerm*dynamicColors:      true
+UXTerm*scrollbar.Translations: #override \n\
+  :StartScroll(Continous) MoveThumb() NotifyThumb()\n\
+  :MoveThumb() NotifyThumb() \n\
+  :StartScroll(Continous) MoveThumb() NotifyThumb()\n\
+  :MoveThumb() NotifyThumb() \n\
+  :StartScroll(Continous) MoveThumb() NotifyThumb()\n\
+  :MoveThumb() NotifyThumb() \n\
+  :NotifyScroll(Proportional) EndScroll()
+UXTerm.vt100.translations: #override \
+  ~Meta <Btn3Down> : insert-selection(CLIPBOARD,CUT_BUFFER0) \n\
+
+!BLK Cursor
+#define _color0        #000d18
+#define _color8        #000d18
+
+!RED Tag
+#define _color1        #DF5757
+#define _color9        #DF5757
+
+!GRN SpecialKey
+#define _color2        #97BF60
+#define _color10       #97BF60
+
+!YEL Keyword
+#define _color3        #f5f5b5
+#define _color11       #f5f5b5
+
+!BLU Number
+#define _color4        #729FCF
+#define _color12       #729FCF
+
+!MAG Precondit
+#define _color5        #B790B3
+#define _color13       #B790B3
+
+!CYN Float
+#define _color6        #FAA546
+#define _color14       #FAA546
+
+!WHT Search
+#define _color7        #f3f3f3
+#define _color15       #f3f3f3
+
+!FMT Include, StatusLine, ErrorMsg
+#define _colorBD       #FAA546
+#define _colorUL       #97BF60
+#define _colorIT       #60BF87
+
+!TXT Normal, Normal, Cursor
+#define _foreground    #f3f3f3
+#define _background    #242424
+#define _cursorColor   #729FCF
+
+UXTerm*color0         : _color0
+UXTerm*color1         : _color1
+UXTerm*color2         : _color2
+UXTerm*color3         : _color3
+UXTerm*color4         : _color4
+UXTerm*color5         : _color5
+UXTerm*color6         : _color6
+UXTerm*color7         : _color7
+UXTerm*color8         : _color8
+UXTerm*color9         : _color9
+UXTerm*color10        : _color10
+UXTerm*color11        : _color11
+UXTerm*color12        : _color12
+UXTerm*color13        : _color13
+UXTerm*color14        : _color14
+UXTerm*color15        : _color15
+UXTerm*colorBD        : _colorBD
+UXTerm*colorIT        : _colorIT
+UXTerm*colorUL        : _colorUL
+UXTerm*foreground     : _foreground
+UXTerm*background     : _background
+UXTerm*cursorColor    : _cursorColor
+
+! enable coloring for bold and underlined text
+UXTerm*vt100.boldColors     : False
+UXTerm*vt100.colorBDMode    : True
+UXTerm*vt100.colorULMode    : True
+UXTerm*vt100.colorRVMode    : False
+UXTerm*vt100.veryBoldColors : 6
+
+/* xterm*termName: xterm-256-colors */
+
+!! URxvt
+URxvt*color0         : _color0
+URxvt*color1         : _color1
+URxvt*color2         : _color2
+URxvt*color3         : _color3
+URxvt*color4         : _color4
+URxvt*color5         : _color5
+URxvt*color6         : _color6
+URxvt*color7         : _color7
+URxvt*color8         : _color8
+URxvt*color9         : _color9
+URxvt*color10        : _color10
+URxvt*color11        : _color11
+URxvt*color12        : _color12
+URxvt*color13        : _color13
+URxvt*color14        : _color14
+URxvt*color15        : _color15
+URxvt*colorBD        : _colorBD
+URxvt*colorIT        : _colorIT
+URxvt*colorUL        : _colorUL
+URxvt*foreground     : _foreground
+URxvt*background     : _background
+URxvt*cursorColor    : _cursorColor
+
+URxvt.font: xft:JetBrainsMonoNL-Regular:size=10:antialias=true
+URxvt.boldfont: xft:JetBrainsMonoNL-Bold:size=10:antialias=true
+URxvt.italicfont: xft:JetBrainsMonoNL-Italic:size=10:antialias=true
+URxvt.boldItalicfont: xft:JetBrainsMonoNL-BoldItalic:size=10:antialias=true
+URxvt.letterSpace: 0
+URxvt.lineSpace: 5
+URxvt.geometry: 92x24
+/* URxvt.internalBorder: 24 */
+URxvt.internalBorder: 0
+URxvt.cursorBlink: true
+URxvt.cursorUnderline: false
+URxvt.saveline: 5096
+URxvt.scrollBar: false
+URxvt.scrollBar_right: false
+URxvt.urgentOnBell: true
+/* URxvt.depth: 24 */
+URxvt.iso14755: false

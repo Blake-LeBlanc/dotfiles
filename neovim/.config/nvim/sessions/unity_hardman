@@ -1,0 +1,67 @@
+let SessionLoad = 1
+let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
+let v:this_session=expand("<sfile>:p")
+silent only
+silent tabonly
+cd ~/dotfiles
+if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
+  let s:wipebuf = bufnr('%')
+endif
+let s:shortmess_save = &shortmess
+if &shortmess =~ 'A'
+  set shortmess=aoOA
+else
+  set shortmess=aoO
+endif
+badd +73 error.txt
+badd +2010 ~/.local/state/nvim/lsp.log
+badd +110 neovim/.config/nvim/lua/user/lsp/configs.lua
+badd +94 neovim/.config/nvim/lua/user/lsp/handlers.lua
+badd +157 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_MASON.lua
+badd +21 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_NVIM_LSP_INSTALLER.lua
+badd +32 neovim/.config/nvim/lua/user/mason-tool-installer.lua
+badd +76 neovim/.config/nvim/lua/user/lsp/settings/omnisharp.lua
+badd +135 ~/.cache/nvim/lsp-installer.log
+badd +111 ~/.local/share/nvim/site/pack/packer/start/nvim-lspconfig/lua/lspconfig/server_configurations/omnisharp.lua
+badd +1 ~/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim/lua/mason-lspconfig/server_configurations/omnisharp/init.lua
+badd +1 neovim/.config/nvim/lua/user/lsp/settings/omnisharp_CUSTOM.lua
+badd +1 desktop_environment_themes/gnome/.themes/equilux-theme-v20180110/Equilux/unity/launcher_arrow_rtl_19.svg
+badd +63 ~/Programming/Tutorials/hardman/ObstacleCourse2/Assets/Scripts/PlayerCamera.cs
+badd +1 ~/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim/lua/mason-lspconfig/server_configurations/omnisharp/README.md
+badd +22 /media/sf_Unity_Projects/Hardman/ObstacleCourse2/Assets/Scripts/PlayerCamera.cs
+argglobal
+%argdel
+edit /media/sf_Unity_Projects/Hardman/ObstacleCourse2/Assets/Scripts/PlayerCamera.cs
+argglobal
+balt neovim/.config/nvim/lua/user/lsp/configs.lua
+setlocal fdm=marker
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 22 - ((21 * winheight(0) + 18) / 37)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 22
+normal! 06|
+tabnext 1
+if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
+  silent exe 'bwipe ' . s:wipebuf
+endif
+unlet! s:wipebuf
+set winheight=1 winwidth=20
+let &shortmess = s:shortmess_save
+let s:sx = expand("<sfile>:p:r")."x.vim"
+if filereadable(s:sx)
+  exe "source " . fnameescape(s:sx)
+endif
+let &g:so = s:so_save | let &g:siso = s:siso_save
+set hlsearch
+nohlsearch
+doautoall SessionLoadPost
+unlet SessionLoad
+" vim: set ft=vim :
