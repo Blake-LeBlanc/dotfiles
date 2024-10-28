@@ -1,0 +1,15 @@
+# Save to the `~` directory, ie `~/.ripgreprc`
+--unrestricted
+--smart-case
+
+# Enable search of hidden files
+--hidden
+
+# Ignore the .git directory
+--glob=!.git/*
+
+# Equivalent to the `-s` or `--silent` flags, which do the same thing as the `2>$null` thing you
+# used to manually include as part of your searches. 
+# In the event you ever **DO** want these messages to come through, override by included
+# `--messages` flag
+--no-messages
