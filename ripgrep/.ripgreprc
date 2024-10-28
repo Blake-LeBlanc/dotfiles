@@ -1,4 +1,8 @@
 # Save to the `~` directory, ie `~/.ripgreprc`
+# Or, better yet, create a symboliclink (req admin rights) or a hardlink (does not req admin rights)
+# with something like
+# New-Item -ItemType HardLink -Path "$env:USERPROFILE\.ripgreprc" -Target "C:\Work\dotfiles\ripgrep\.ripgreprc"
+
 --unrestricted
 --smart-case
 
