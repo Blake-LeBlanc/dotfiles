@@ -1,9 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Save this within the parent dir for freac. For example, when installed through the Windows Store, this file was located at:
 
 AppData\Local\Packages\17479thefreacproject.freac-freeaudioconverter_b4f9ysynd7xvm\LocalCache\Roaming\freac\freac.xml
+
+You may be able to create a shortcut or pointer to this actual dotfile location, but I haven't tried it yet
 -->
-<?xml version="1.0" encoding="UTF-8"?>
 <ConfigFile>
  <configuration name="default">
   <section name="Settings">
