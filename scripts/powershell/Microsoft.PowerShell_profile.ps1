@@ -99,3 +99,7 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
 # Okay, so quick update on this! Turns out there is a setting in `fd` to disable this.
 # `fd --color=never ...`
 # Set-Alias -Name fd -Value "fd --color=never"
+
+function ls {
+    Get-ChildItem -Force @args | less
+}
