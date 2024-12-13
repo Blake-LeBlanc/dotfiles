@@ -100,6 +100,8 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
 # `fd --color=never ...`
 # Set-Alias -Name fd -Value "fd --color=never"
 
+# Customize `ls` command to show hidden files and pipe the output to less
+Remove-Item Alias:ls -ErrorAction SilentlyContinue
 function ls {
     Get-ChildItem -Force @args | less
 }
