@@ -17112,30 +17112,3 @@ Windows related {{{
   $ kill -9 <PID_number>
 
 }}}
-
-z_Misc
-  Tabletop RPG's {{{
-  https://old.reddit.com/r/rpg/comments/wicd2p/good_narrative_games_that_arent_pbta_fitd_or_fate/
-    * Arcana Games
-      + Prologue (2nd ed)
-    * GUMSHOE
-    * Primetime Adventures
-      + https://mythcreants.com/blog/primetime-adventures-is-great-for-dramatic-roleplaying/
-    * No Dice/No Masters
-    * SPC
-      + Fake Chess
-        + https://spc.itch.io/fakechess
-    * Fall of Magic
-    * The Resistance System from Spire and Heart
-    * Silvervine
-    * Jeeyonshim
-    * Weave - Tarot based card system
-    * Moonflower: A Story Game of Impossible Journeys
-    * Sharkbomb Games
-      + Ex Novo
-    * Monolock by Ben Chong -- NOTE: Will be hard to find bc author took down all work
-
-    }}}
-
-    * HyperNormalisation: A new film by Adam Curtis
-    * https://en.wikipedia.org/wiki/Moon_Colony_Bloodbath
