@@ -102,6 +102,9 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
 
 # Customize `ls` command to show hidden files and pipe the output to less
 # Remove-Item Alias:ls -ErrorAction SilentlyContinue
+
+# Updated to reinstate original ls alias, set | less version as lsh
+Set-Alias -Name ls -Value Get-ChildItem
 function lsh {
     Get-ChildItem -Force @args | less
 }
