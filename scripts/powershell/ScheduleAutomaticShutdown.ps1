@@ -13,6 +13,6 @@ $shutdownTime = (Get-Date).AddMinutes($shutdownDelayMinutes)
 # Display a message with the shutdown time
 Write-Host "The computer will shut down in $shutdownDelayMinutes minutes at $shutdownTime."
 
-# Schedule the shutdown
-Stop-Computer -Force -Timeout $shutdownDelayMinutes
+# Schedule the shutdown using shutdown.exe
+Start-Process -FilePath "shutdown.exe" -ArgumentList "/s /t $($shutdownDelayMinutes * 60)"
 
