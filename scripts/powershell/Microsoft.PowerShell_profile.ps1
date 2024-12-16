@@ -50,19 +50,19 @@ Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
 
 function Activate-Venv {
     # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = FIXME to ActivateVent.ps1
+    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\ActivateVenv.ps1"
     & $scriptPath
 }
 
 function Download-Files {
     # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = FIXME to DownloadFiles.ps1
+    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\DownloadFiles.ps1"
     & $scriptPath
 }
 
 function Interactive-Download-Files {
     # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = FIXME to InteractiveDownloadFiles.ps1
+    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\InteractiveDownloadFiles.ps1"
     & $scriptPath
 }
 
