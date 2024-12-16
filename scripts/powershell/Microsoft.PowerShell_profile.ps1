@@ -108,3 +108,5 @@ Set-Alias -Name ls -Value Get-ChildItem
 function lsh {
     Get-ChildItem -Force @args | less
 }
+(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
