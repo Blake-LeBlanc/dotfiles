@@ -74,14 +74,14 @@
 [mergetool]
 	keepBackup = false
 
+; NOTE: Even though the output layout I'm wanting difftool to use is that of diffconflicts, it seems
+; that using vimdiff causes an output layout that is surprisingly similar to diffconflicts's
+; presentation. I suspect vimdiff may be falling back on the prescribed merge tool... Either that,
+; or maybe the two outputs just happen to look the same? Either way mission accomplished as far as
+; I'm concerned :) UPDATE: Reached out to the diffconflicts creators and they replied that they like
+; the idea of having a sort of 'custom' difftool view. If they do give it a shot, they said they'll
+; likely make it a separate plugin since it goes outside the scope of diffconflicts
 [diff]
-; NOTE: Even though the output layout I'm wanting difftool to use is that of diffconflicts, it seems that using vimdiff
-; causes an output layout that is surprisingly similar to diffconflicts's presentation. I suspect vimdiff may be falling back
-; on the prescribed merge tool... Either that, or maybe the two outputs just happen to look the same? Either way mission
-; accomplished as far as I'm concerned :)
-; UPDATE: Reached out to the diffconflicts creators and they replied that they like the idea of having a sort of 'custom'
-; difftool view. If they do give it a shot, they said they'll likely make it a separate plugin since it goes outside the
-; scope of diffconflicts
   tool = vimdiff
 [difftool "vimdiff"]
   ; cmd = vimdiff "$LOCAL" "$REMOTE"
@@ -91,5 +91,28 @@
 	directory = /home/linux/temp_gitdwm/
 	directory = /home/linux/temp_gitneovim
 	directory = /home/linux/temp_gitdwm
+
 [mergetool "vimdiff"]
 	path = nvim
+
+
+[core]
+	; config = <path to config file>
+	pager = delta
+	editor = nvim
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	side-by-side = true
+	light = true
+
+[merge]
+	conflictstyle = diff3
+
+[diff]
+	colorMoved = default
+
+
