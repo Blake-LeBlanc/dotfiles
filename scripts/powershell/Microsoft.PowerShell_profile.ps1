@@ -49,20 +49,20 @@ Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
 }
 
 function Activate-Venv {
-    # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\ActivateVenv.ps1"
+    $relativePath = "dotfiles\scripts\powershell\ActivateVenv.ps1"
+    $scriptPath = Join-Path $env:USERPROFILE $relativePath
     & $scriptPath
 }
 
 function Download-Files {
-    # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\DownloadFiles.ps1"
+    $relativePath = "dotfiles\scripts\powershell\DownloadFiles.ps1"
+    $scriptPath = Join-Path $env:USERPROFILE $relativePath
     & $scriptPath
 }
 
 function Interactive-Download-Files {
-    # FIXME: Setup env var? Something that maps the $scriptpath appropriately
-    $scriptPath = "C:\Users\Blake.Leblanc\OneDrive - Guernsey\scripts\powershell\InteractiveDownloadFiles.ps1"
+    $relativePath = "dotfiles\scripts\powershell\InteractiveDownloadFiles.ps1"
+    $scriptPath = Join-Path $env:USERPROFILE $relativePath
     & $scriptPath
 }
 
@@ -110,3 +110,6 @@ function lsh {
 }
 (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
 (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+
+# Trying to find a way to have Mason use pnpm rather than npm for node related dependencies...
+# Set-Alias npm pnpm
