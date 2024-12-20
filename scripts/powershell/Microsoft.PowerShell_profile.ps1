@@ -116,6 +116,6 @@ function lsh {
 # Set-Alias npm pnpm
 
 # Starship
-Invoke-Expression (&starship init powershell)
-$ENV:STARSHIP_CONFIG = "~\dotfiles\starship\starship.toml"
+# Invoke-Expression (&starship init powershell)
+# $ENV:STARSHIP_CONFIG = "$HOME\dotfiles\starship\starship.toml"
 

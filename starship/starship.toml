@@ -1,3 +1,5 @@
+# Personal attempt with ChatGPT modifications on syntax
+# DOES NOT DISPLAY PROPERLY
 # [directory]
 # truncation_length = 3
 # format = "[$path]($style) "  # Display the full path
@@ -19,30 +21,31 @@
 # [format]
 # format = "$directory\\n$custom.time $custom.command_count$character"
 
+# From claude.ai
+# DOES NOT WORK!!
+# Global settings
+command_timeout = 5000
+
+# Show git branch first
+[git_branch]
+format = "[$branch]($style) "
+
+# Show full directory path
 [directory]
-truncation_length = 3
+truncation_length = 0
+truncate_to_repo = false
 format = "[$path]($style)"
 
-[custom.time]
+# Custom datetime stamp
+[custom.datetime]
 command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
-when = "true"
+when = "pwsh"
 style = "grey"
 
-[custom.command_count]
-command = "$([Math]::Add((Get-History | Measure-Object).Count, 1))"
-when = "true"
-style = "bold white"
-
-[custom.nested_level]
-command = """
-$level = (Get-Variable -Name NestedPromptLevel -ErrorAction SilentlyContinue).Value
-if ($level) { '>' * $level } else { '' }
-"""
-when = "true"
-style = "bold white"
-
+# The prompt character
 [character]
-symbol = ">"
-style = "bold white"
+success_symbol = ">"
+error_symbol = ">"
 
-format = "$directory\n$custom.time $custom.command_count$character$custom.nested_level"
+# Put it all together
+format = "$git_branch$directory\n$datetime$character"
