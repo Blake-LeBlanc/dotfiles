@@ -1,9 +1,28 @@
 Import-Module posh-git
 
+# No symbols/nerd fonts
 $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
 $GitPromptSettings.DefaultPromptBeforeSuffix.Text = '`n$([DateTime]::now.ToString("MM-dd HH:mm:ss"))'
 $GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
 $GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) '
+
+# With symbols/nerd fonts
+# $Symbols = @{
+#     Branch       = [char]0xE725  # 
+#     Directory    = [char]0xF115  # 
+#     Clock        = [char]0xF64F  #  
+#     CommandId    = [char]0xF489  # 
+# }
+#
+# $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
+#
+# # $GitPromptSettings.DefaultPromptBeforeSuffix.Text = "`n$($Symbols.Clock) $([DateTime]::now.ToString('MM-dd HH:mm:ss'))"
+# $GitPromptSettings.DefaultPromptBeforeSuffix.Text = "`n$([DateTime]::now.ToString('MM-dd HH:mm:ss'))"
+# $GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
+# $GitPromptSettings.DefaultPromptSuffix = " $($Symbols.CommandId) $((Get-History -Count 1).id + 1)$('>' * ($nestedPromptLevel + 1)) "
+#
+# $GitPromptSettings.DefaultPromptPath = "$($Symbols.Directory) $PWD"
+
 
 # function Get-VirtualEnvPrompt {
 #     $venvName = $env:VIRTUAL_ENV
