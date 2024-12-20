@@ -1,0 +1,48 @@
+# [directory]
+# truncation_length = 3
+# format = "[$path]($style) "  # Display the full path
+#
+# [custom.time]
+# command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
+# when = "true"
+# style = "dimmed"
+#
+# [custom.command_count]
+# command = "(Get-History | Measure-Object).Count"
+# when = "true"
+# style = "bold white"
+#
+# [character]
+# symbol = ">"
+# style = "bold white"
+#
+# [format]
+# format = "$directory\\n$custom.time $custom.command_count$character"
+
+[directory]
+truncation_length = 3
+format = "[$path]($style)"
+
+[custom.time]
+command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
+when = "true"
+style = "grey"
+
+[custom.command_count]
+command = "$([Math]::Add((Get-History | Measure-Object).Count, 1))"
+when = "true"
+style = "bold white"
+
+[custom.nested_level]
+command = """
+$level = (Get-Variable -Name NestedPromptLevel -ErrorAction SilentlyContinue).Value
+if ($level) { '>' * $level } else { '' }
+"""
+when = "true"
+style = "bold white"
+
+[character]
+symbol = ">"
+style = "bold white"
+
+format = "$directory\n$custom.time $custom.command_count$character$custom.nested_level"

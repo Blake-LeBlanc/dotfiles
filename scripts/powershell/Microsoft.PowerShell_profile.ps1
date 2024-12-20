@@ -47,7 +47,7 @@ $GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">"
 #         [System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)
 #     }
 #     Remove-Item $completion_file, Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS, Env:\_ARGCOMPLETE_SHELL
-}
+# }
 
 function Activate-Venv {
     $relativePath = "dotfiles\scripts\powershell\ActivateVenv.ps1"
@@ -114,3 +114,8 @@ function lsh {
 
 # Trying to find a way to have Mason use pnpm rather than npm for node related dependencies...
 # Set-Alias npm pnpm
+
+# Starship
+Invoke-Expression (&starship init powershell)
+$ENV:STARSHIP_CONFIG = "~\dotfiles\starship\starship.toml"
+
