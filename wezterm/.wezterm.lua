@@ -13,8 +13,8 @@ local config = wezterm.config_builder()
 -- config.color_scheme = "Catppuccin Latte"
 -- config.color_scheme = 'Catppuccin Latte (Gogh)'
 -- config.color_scheme = 'Clrs (Gogh)'
--- config.color_scheme = 'dawnfox'
-config.color_scheme = "dayfox"
+-- config.color_scheme = "dawnfox"
+-- NO config.color_scheme = "dayfox"
 -- config.color_scheme = "Default (light) (terminal.sexy)"
 -- config.color_scheme = "Ef-Cyprus"
 -- config.color_scheme = "Ef-Duo-Light"
@@ -26,7 +26,8 @@ config.color_scheme = "dayfox"
 -- config.color_scheme = "Embers (light) (terminal.sexy)"
 -- config.color_scheme = "Github Light (Gogh)"
 -- config.color_scheme = "Google (light) (terminal.sexy)"
--- config.color_scheme = "Greysclae (light) (terminal.sexy)"
+-- config.color_scheme = "Grayscale (light) (terminal.sexy)"
+config.color_scheme = "Ivory Light (terminal.sexy)"
 
 -- dark
 -- config.color_scheme = 'Arthur (Gogh)'
