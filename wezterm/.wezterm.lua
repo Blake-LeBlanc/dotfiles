@@ -22,12 +22,14 @@ local config = wezterm.config_builder()
 -- config.color_scheme = "Ef-Kassio"
 -- config.color_scheme = "Ef-Light"
 -- config.color_scheme = "Ef-Reverie"
--- config.color_scheme = "Eighties (light) (terminal.sexy)"
+-- NO config.color_scheme = "Eighties (light) (terminal.sexy)"
 -- config.color_scheme = "Embers (light) (terminal.sexy)"
--- config.color_scheme = "Github Light (Gogh)"
+-- NO config.color_scheme = "Github Light (Gogh)"
 -- config.color_scheme = "Google (light) (terminal.sexy)"
 -- config.color_scheme = "Grayscale (light) (terminal.sexy)"
 config.color_scheme = "Ivory Light (terminal.sexy)"
+-- NO config.color_scheme = "Londontube (light) (terminal.sexy)"
+-- NO config.color_scheme = "Night Owlish Light"
 
 -- dark
 -- config.color_scheme = 'Arthur (Gogh)'
