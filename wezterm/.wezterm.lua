@@ -35,7 +35,7 @@ config.cursor_blink_rate = 600
 -- config.font = wezterm.font("JetBrainsMonoNL Nerd Font")
 config.font = wezterm.font("JetBrains Mono")
 config.font_size = 11
-config.line_height = 1.75
+config.line_height = 1.5
 
 -- }}}
 -- startup{{{
