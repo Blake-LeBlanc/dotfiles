@@ -10,8 +10,23 @@ local config = wezterm.config_builder()
 -- config.color_scheme = "ayu_light"
 -- config.color_scheme = "Belafonte Day"
 -- config.color_scheme = "BlulocoLight"
-config.color_scheme = "Catppuccin Latte"
+-- config.color_scheme = "Catppuccin Latte"
 -- config.color_scheme = 'Catppuccin Latte (Gogh)'
+-- config.color_scheme = 'Clrs (Gogh)'
+-- config.color_scheme = 'dawnfox'
+config.color_scheme = "dayfox"
+-- config.color_scheme = "Default (light) (terminal.sexy)"
+-- config.color_scheme = "Ef-Cyprus"
+-- config.color_scheme = "Ef-Duo-Light"
+-- config.color_scheme = "Ef-Frost"
+-- config.color_scheme = "Ef-Kassio"
+-- config.color_scheme = "Ef-Light"
+-- config.color_scheme = "Ef-Reverie"
+-- config.color_scheme = "Eighties (light) (terminal.sexy)"
+-- config.color_scheme = "Embers (light) (terminal.sexy)"
+-- config.color_scheme = "Github Light (Gogh)"
+-- config.color_scheme = "Google (light) (terminal.sexy)"
+-- config.color_scheme = "Greysclae (light) (terminal.sexy)"
 
 -- dark
 -- config.color_scheme = 'Arthur (Gogh)'
@@ -63,13 +78,15 @@ end)
 config.window_decorations = "RESIZE"
 
 -- }}}
--- window padding
+-- window padding{{{
 config.window_padding = {
-	left = 0
-	right = 0
-	top = 0
-	bottom = 0
+	left = 5,
+	right = 5,
+	top = 0,
+	bottom = 0,
 }
+
+-- }}}
 
 config.enable_tab_bar = false
 -- config.window_background_opacity = 0.9
