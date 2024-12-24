@@ -138,3 +138,14 @@ function lsh {
 # Invoke-Expression (&starship init powershell)
 # $ENV:STARSHIP_CONFIG = "$HOME\dotfiles\starship\starship.toml"
 
+# yazi
+# Use `y` to have the shell "follow" your path location. `q` to quit with follow, `Q` to quit without follow
+function y {
+    $tmp = [System.IO.Path]::GetTempFileName()
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+        Set-Location -LiteralPath $cwd
+    }
+    Remove-Item -Path $tmp
+}
