@@ -7,66 +7,64 @@
 	default = matching
 
 [alias]
-  ; Here are some cool configs you can use or reference:
-    ; https://gist.github.com/rocketraman/1fdc93feb30aa00f6f3a9d7d732102a9?permalink_comment_id=3545007
+	; Here are some cool configs you can use or reference:
+	; https://gist.github.com/rocketraman/1fdc93feb30aa00f6f3a9d7d732102a9?permalink_comment_id=3545007
 
-  ; Various layouts for visualizing git logs. There are a ton on the intarwebs, here are some that I've come across
-  ; Display all branches, ordered by most recent commit date
-    lg0 = "!git for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD)%(color:red)%(objectname:short)%(color:reset)|%(color:yellow)%(refname:short)%(color:reset)|%(contents:subject)|%(authorname)(%(color:green)%(committerdate:relative)%(color:reset))' | column -ts'|' "
-    # lg0 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	; Various layouts for visualizing git logs. There are a ton on the intarwebs, here are some that I've come across
+	; Display all branches, ordered by most recent commit date
+	lg0 = "!git for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD)%(color:red)%(objectname:short)%(color:reset)|%(color:yellow)%(refname:short)%(color:reset)|%(contents:subject)|%(authorname)(%(color:green)%(committerdate:relative)%(color:reset))' | column -ts'|' "
+	# lg0 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 
-  ; Display all commits, ordered by date
-    ; lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold	blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset)%C(dim white)- %an%C(reset)%C(auto)%d%C(auto)' --all
-    lg1 = log --graph --abbrev-commit --decorate --color=always --format=format:'%C(auto)%h%C(reset) %C(dim white)(%ar)%C(reset) %C(auto)%s%C(reset)%C(dim white) - %an%C(auto)%C(auto)%d%C(auto)' --all
+	; Display all commits, ordered by date
+	; lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold	blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset)%C(dim white)- %an%C(reset)%C(auto)%d%C(auto)' --all
+	lg1 = log --graph --abbrev-commit --decorate --color=always --format=format:'%C(auto)%h%C(reset) %C(dim white)(%ar)%C(reset) %C(auto)%s%C(reset)%C(dim white) - %an%C(auto)%C(auto)%d%C(auto)' --all
 
-  ; Display all commits, ordered by date, a more itemized and detailed view
-    # lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold	blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar) %C(reset)%C(bold yellow)%d%C(reset)%n'' %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
-    lg2 = log --graph --abbrev-commit --decorate --date=relative --all
+	; Display all commits, ordered by date, a more itemized and detailed view
+	# lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold	blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar) %C(reset)%C(bold yellow)%d%C(reset)%n'' %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+	lg2 = log --graph --abbrev-commit --decorate --date=relative --all
 
-  ; This one is not working for some reason...
-    lg3 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --exclude=origin/build_* --remotes --branches
+	; This one is not working for some reason...
+	lg3 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --exclude=origin/build_* --remotes --branches
 
 	lg = !"git lg1"
 
-  ; Sort branches by commit date rather than in alphabetical order
-  ; b ="!git branch --sort=-committerdate"
-  ; b ="!git branch -a --sort=-committerdate refs/heads/ --format='%(HEAD)%(color:red)%(objectname:short)%(color:reset)|%(color:yellow)%(refname:short)%(color:reset)|%(contents:subject)|%(authorname)(%(color:green)%(committerdate:relative)%(color:reset))' | column -ts'|' "
-  ; b ='for k in `git branch -r | perl -pe '\''s/^..(.*?)( ->.*)?$/\1/'\''`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
-  ; b ="!git for-each-ref --sort='-committerdate:iso8601' --format=' %(committerdate:iso8601)%09%(refname)' refs/heads"
-  b ="!git for-each-ref --sort='-committerdate:iso8601' --format=' %(committerdate:iso8601)%09%(refname)' refs/remotes"
+	; Sort branches by commit date rather than in alphabetical order
+	; b ="!git branch --sort=-committerdate"
+	; b ="!git branch -a --sort=-committerdate refs/heads/ --format='%(HEAD)%(color:red)%(objectname:short)%(color:reset)|%(color:yellow)%(refname:short)%(color:reset)|%(contents:subject)|%(authorname)(%(color:green)%(committerdate:relative)%(color:reset))' | column -ts'|' "
+	; b ='for k in `git branch -r | perl -pe '\''s/^..(.*?)( ->.*)?$/\1/'\''`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
+	; b ="!git for-each-ref --sort='-committerdate:iso8601' --format=' %(committerdate:iso8601)%09%(refname)' refs/heads"
+	b ="!git for-each-ref --sort='-committerdate:iso8601' --format=' %(committerdate:iso8601)%09%(refname)' refs/remotes"
 
-  trackedfiles = !"git ls-files"
-  ; trackedfiles = !"git ls-files | cut -d/ -f3 | uniq"
-  trackedfolders = !"git ls-files | awk -F / '{print $1}' | uniq | xargs ls -dl --color=auto"
-  ; track = !"git ls-files | awk -F / '{print $1}' | uniq | xargs ls -dl --color=auto"
-  ; track = !"git ls-files | cut -d/ -f1 | uniq"
-  ; track = !"git ls-files | cut -d/ -f-2 | uniq" # f-2 means two directories deep, can use whatever number you want
+	trackedfiles = !"git ls-files"
+	; trackedfiles = !"git ls-files | cut -d/ -f3 | uniq"
+	trackedfolders = !"git ls-files | awk -F / '{print $1}' | uniq | xargs ls -dl --color=auto"
+	; track = !"git ls-files | awk -F / '{print $1}' | uniq | xargs ls -dl --color=auto"
+	; track = !"git ls-files | cut -d/ -f1 | uniq"
+	; track = !"git ls-files | cut -d/ -f-2 | uniq" # f-2 means two directories deep, can use whatever number you want
 
-  ; https://stackoverflow.com/questions/7726949/remove-tracking-branches-no-longer-on-remote
-  ; NOTE: If you receive the message 'fatal: branch name required', that means you're already in sync with remote branch list
-  ; match-local-to-remote = !git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
-  match = !git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
-  ; NOTE: If this command returns something like "fatal: branch name required" that means no mismatches were found
+	; https://stackoverflow.com/questions/7726949/remove-tracking-branches-no-longer-on-remote
+	; NOTE: If you receive the message 'fatal: branch name required', that means you're already in sync with remote branch list
+	; match-local-to-remote = !git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+	match = !git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+	; NOTE: If this command returns something like "fatal: branch name required" that means no mismatches were found
 
-  contains = !git branch -r | xargs -t -n 1 git branch -r --contains
+	contains = !git branch -r | xargs -t -n 1 git branch -r --contains
 
-  incorporates-master = !git fetch && git branch -r --merged | grep -q origin/master && echo Incorporates origin/master || echo Out of date from origin/master
+	incorporates-master = !git fetch && git branch -r --merged | grep -q origin/master && echo Incorporates origin/master || echo Out of date from origin/master
 
-  graph = !"git log --graph --date-order -C -M --pretty=format:'<%h> %ad [%an] %Cgreen%d%Creset %s' --all --date=short"
+	graph = !"git log --graph --date-order -C -M --pretty=format:'<%h> %ad [%an] %Cgreen%d%Creset %s' --all --date=short"
 
 ; NOTE: Only enable one merge/mergetool group at a time
 ; ### diffconflicts
 [merge]
 	tool = diffconflicts
+	; tool = vim_mergetool
+	; conflictstyle = diff3
 [mergetool "diffconflicts"]
 	; cmd = vim -c DiffConflicts \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
 	cmd = nvim -c DiffConflicts \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
 	trustExitCode = true
 
-; ### vim-mergetool
-; [merge]
-;   tool = vim_mergetool
-;   conflictstyle = diff3
 ; [mergetool "vim_mergetool"]
 ;   cmd = vim -f -c \"MergetoolStart\" \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
 ;   trustExitCode = true
@@ -82,9 +80,9 @@
 ; the idea of having a sort of 'custom' difftool view. If they do give it a shot, they said they'll
 ; likely make it a separate plugin since it goes outside the scope of diffconflicts
 [diff]
-  tool = vimdiff
+	tool = vimdiff
 [difftool "vimdiff"]
-  ; cmd = vimdiff "$LOCAL" "$REMOTE"
+	; cmd = vimdiff "$LOCAL" "$REMOTE"
 [core]
 	editor = nvim
 [safe]
