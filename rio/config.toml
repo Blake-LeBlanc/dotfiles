@@ -1,0 +1,6 @@
+[editor]
+program = "neovim"
+
+[fonts]
+size = 12
+family = "JetBrains Mono NL"
