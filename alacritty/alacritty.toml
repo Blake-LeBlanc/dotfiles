@@ -1,0 +1,16 @@
+[window]
+padding.x = 10
+padding.y = 10
+
+[font]
+normal.family = "JetBrains Mono NL"
+bold.family = "JetBrains Mono NL"
+italic.family = "JetBrains Mono NL"
+bold_italic.family = "JetBrains Mono NL"
+
+size = 12.0
+
+[font.offset]
+y = 8
+[font.glyph_offset]
+y = 4
