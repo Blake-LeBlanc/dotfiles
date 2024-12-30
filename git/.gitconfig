@@ -26,7 +26,9 @@
 	; This one is not working for some reason...
 	lg3 = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --exclude=origin/build_* --remotes --branches
 
-	lg = !"git lg1"
+	; lg = !"git lg1"
+	lg = !"git log --graph --abbrev-commit --decorate --color=always --format=format:'%C(auto)%h%C(reset) %C(dim white)(%ad)%C(reset) %C(auto)%s%C(reset)%C(dim white) - %an%C(auto)%C(auto)%d%C(auto)' --date=format:'%Y-%m-%d %H:%M:%S' --all"
+
 
 	; Sort branches by commit date rather than in alphabetical order
 	; b ="!git branch --sort=-committerdate"
