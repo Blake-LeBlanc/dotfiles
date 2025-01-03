@@ -21,7 +21,8 @@ function Find-ActivateScript {
     $configFilePath = Join-Path -Path $directory -ChildPath "venv-config.txt"
     if (Test-Path $configFilePath) {
         Write-Host "venv-config.txt found in $directory"
-        $venvPath = (Get-Content -Path $configFilePath).Trim()
+        $venvPath = (Get-Content -Path $configFilePath) -replace '[\r\n]', '' | ForEach-Object { $_.Trim() }
+        Write-Host "venv-config.txt content: '$venvPath'"
         $activateScriptPath = Join-Path -Path $venvPath -ChildPath "Scripts\Activate.ps1"
         $activateScriptPath = $activateScriptPath.Trim()
 
