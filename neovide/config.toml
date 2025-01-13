@@ -1,0 +1,5 @@
+# $env:APPDATA/neovide/config.toml
+[font]
+normal = ["JetBrainsMonoNL Nerd Font"]
+size = 12
+
