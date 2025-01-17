@@ -83,10 +83,13 @@
 ; likely make it a separate plugin since it goes outside the scope of diffconflicts
 [diff]
 	tool = vimdiff
+
 [difftool "vimdiff"]
 	; cmd = vimdiff "$LOCAL" "$REMOTE"
+
 [core]
 	editor = nvim
+
 [safe]
 	directory = /home/linux/temp_gitdwm/
 	directory = /home/linux/temp_gitneovim
