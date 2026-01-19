@@ -52,7 +52,7 @@ if ($throttle -eq 1) {
     foreach ($file in $files) {
         $index++
         Write-Progress -Activity "Converting images to WebP" `
-                       -Status "$index of $totalFiles: $($file.Name)" `
+                       -Status "${index} of ${totalFiles}: $($file.Name)" `
                        -PercentComplete (($index / $totalFiles) * 100)
 
         $src  = $file.FullName
@@ -85,15 +85,25 @@ if ($throttle -eq 1) {
         $quality = if ($_.Extension -match "png") { $using:pngQuality } else { $using:jpgQuality }
         $before = $_.Length
 
-        if (Test-Path $dest) { $using:progressCounter.Add(1); return $null }
+        if (Test-Path $dest) { 
+            $counter = $using:progressCounter
+            $counter.Add(1);
+            return $null
+        }
 
-        if ($using:dryRun) { $using:progressCounter.Add(1); return [pscustomobject]@{ File=$src; Before=$before; After=0; Saved=0; Status="DRY RUN" } }
+        if ($using:dryRun) { 
+            $counter = $using:progressCounter
+            $counter.Add(1);
+            return [pscustomobject]@{ File=$src; Before=$before; After=0; Saved=0; Status="DRY RUN" } 
+        }
 
         magick "$src" -strip -quality $quality "$dest"
         if (Test-Path $dest) { Remove-ItemSafely "$src" -Confirm:$false }
 
-        $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
-        $using:progressCounter.Add(1)
+        $after = if (Test-Path $dest) { 
+            $counter = $using:progressCounter
+            (Get-Item $dest).Length } else { 0 }
+            $counter.Add(1)
 
         return [pscustomobject]@{ File=$src; Before=$before; After=$after; Saved=($before-$after); Status="OK" }
     } -ThrottleLimit $throttle
