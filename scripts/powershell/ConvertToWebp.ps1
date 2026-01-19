@@ -1,14 +1,10 @@
-# ======================================
-# Convert JPG/PNG to WebP (Adaptive Sequential/Parallel + Progress)
-# ======================================
-
 Add-Type -AssemblyName System.Windows.Forms
 
 # ---- Settings ----
 $jpgQuality  = 80
 $pngQuality  = 85
 $dryRun      = $false      # set to $true for testing
-$throttle    = 4           # number of parallel jobs; set 1 for sequential
+$throttle    = 6           # 1 = sequential, >1 = parallel
 $logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
 
 # ---- Folder picker ----
@@ -33,82 +29,119 @@ Write-Host "Originals:     Recycle Bin"
 Write-Host ""
 
 $confirm = Read-Host "Proceed? (y/n)"
-if ($confirm -ne 'y') { Write-Host "Cancelled."; return }
+if ($confirm -ne 'y') {
+    Write-Host "Cancelled."
+    return
+}
 
 # ---- Collect files ----
 $files = Get-ChildItem $root -Recurse -Include *.jpg,*.jpeg,*.png -File
 $totalFiles = $files.Count
 
-if ($totalFiles -eq 0) { Write-Host "No images found."; return }
+if ($totalFiles -eq 0) {
+    Write-Host "No images found."
+    return
+}
 
 Add-Content $logFile "`n=== Run started $(Get-Date) ==="
 
-# ---- Adaptive conversion ----
+# ---- Adaptive processing ----
 $results = @()
 
 if ($throttle -eq 1) {
-    # --- Sequential loop ---
+
+    # ---- Sequential loop ----
     $index = 0
     foreach ($file in $files) {
+
         $index++
+
+        # ---- Progress ----
         Write-Progress -Activity "Converting images to WebP" `
                        -Status "${index} of ${totalFiles}: $($file.Name)" `
                        -PercentComplete (($index / $totalFiles) * 100)
 
-        $src  = $file.FullName
+        $src = $file.FullName
         $dest = Join-Path $file.DirectoryName ($file.BaseName + ".webp")
         $quality = if ($file.Extension -match "png") { $pngQuality } else { $jpgQuality }
         $before = $file.Length
 
-        if (Test-Path $dest) { continue }
-
-        if ($dryRun) {
-            $results += [pscustomobject]@{ File=$src; Before=$before; After=0; Saved=0; Status="DRY RUN" }
+        if (Test-Path $dest) {
             continue
         }
 
+        if ($dryRun) {
+            $results += [pscustomobject]@{
+                File = $src
+                Before = $before
+                After = 0
+                Saved = 0
+                Status = "DRY RUN"
+            }
+            continue
+        }
+
+        # ---- Convert ----
         magick "$src" -strip -quality $quality "$dest"
-        if (Test-Path $dest) { Remove-ItemSafely "$src" -Confirm:$false }
+
+        # ---- Recycle original ----
+        if (Test-Path $dest) {
+            Remove-ItemSafely "$src" -Confirm:$false
+        }
 
         $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
-        $results += [pscustomobject]@{ File=$src; Before=$before; After=$after; Saved=($before-$after); Status="OK" }
+
+        $results += [pscustomobject]@{
+            File = $src
+            Before = $before
+            After = $after
+            Saved = $before - $after
+            Status = "OK"
+        }
     }
+
     Write-Progress -Activity "Converting images to WebP" -Completed
 
 } else {
-    # --- Parallel loop ---
+
+    # ---- Parallel loop with main-thread progress ----
     $progressCounter = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
 
-    $results = $files | ForEach-Object -Parallel {
-        $src  = $_.FullName
-        $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
-        $quality = if ($_.Extension -match "png") { $using:pngQuality } else { $using:jpgQuality }
-        $before = $_.Length
+    # Start background job for parallel processing
+    $job = Start-Job -ScriptBlock {
+        param($files, $jpgQuality, $pngQuality, $dryRun, $progressCounter)
 
-        if (Test-Path $dest) { 
-            $counter = $using:progressCounter
-            $counter.Add(1);
-            return $null
+        foreach ($file in $files) {
+
+            $src = $file.FullName
+            $dest = Join-Path $file.DirectoryName ($file.BaseName + ".webp")
+            $quality = if ($file.Extension -match "png") { $pngQuality } else { $jpgQuality }
+            $before = $file.Length
+
+            if (Test-Path $dest) {
+                $progressCounter.Add(1)
+                continue
+            }
+
+            if ($dryRun) {
+                $progressCounter.Add(1)
+                continue
+            }
+
+            # ---- Convert ----
+            magick "$src" -strip -quality $quality "$dest"
+
+            # ---- Recycle original ----
+            if (Test-Path $dest) {
+                Remove-ItemSafely "$src" -Confirm:$false
+            }
+
+            $progressCounter.Add(1)
         }
 
-        if ($using:dryRun) { 
-            $counter = $using:progressCounter
-            $counter.Add(1);
-            return [pscustomobject]@{ File=$src; Before=$before; After=0; Saved=0; Status="DRY RUN" } 
-        }
+    } -ArgumentList $files, $jpgQuality, $pngQuality, $dryRun, $progressCounter
 
-        magick "$src" -strip -quality $quality "$dest"
-        if (Test-Path $dest) { Remove-ItemSafely "$src" -Confirm:$false }
-
-        $after = if (Test-Path $dest) { 
-            $counter = $using:progressCounter
-            (Get-Item $dest).Length } else { 0 }
-            $counter.Add(1)
-
-        return [pscustomobject]@{ File=$src; Before=$before; After=$after; Saved=($before-$after); Status="OK" }
-    } -ThrottleLimit $throttle
-
-    # Main thread progress display
+    # ---- Main thread: live progress ----
     while ($progressCounter.Count -lt $totalFiles) {
         $percent = ($progressCounter.Count / $totalFiles) * 100
         Write-Progress -Activity "Converting images to WebP" `
@@ -116,7 +149,28 @@ if ($throttle -eq 1) {
                        -PercentComplete $percent
         Start-Sleep -Milliseconds 200
     }
+
     Write-Progress -Activity "Converting images to WebP" -Completed
+
+    # ---- Wait for job and gather results ----
+    Wait-Job $job
+    Receive-Job $job | Out-Null
+    Remove-Job $job
+
+    foreach ($file in $files) {
+        $dest = Join-Path $file.DirectoryName ($file.BaseName + ".webp")
+        $before = $file.Length
+        $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
+        $status = if ($dryRun) { "DRY RUN" } elseif (Test-Path $dest) { "OK" } else { "FAILED" }
+
+        $results += [pscustomobject]@{
+            File = $file.FullName
+            Before = $before
+            After = $after
+            Saved = $before - $after
+            Status = $status
+        }
+    }
 }
 
 # ---- Logging ----
@@ -127,9 +181,9 @@ foreach ($r in $results | Where-Object { $_ -ne $null }) {
 
 # ---- Summary ----
 $totalBefore = ($results | Measure-Object Before -Sum).Sum
-$totalAfter  = ($results | Measure-Object After -Sum).Sum
-$totalSaved  = $totalBefore - $totalAfter
-$percent     = if ($totalBefore -gt 0) { [math]::Round(($totalSaved / $totalBefore) * 100, 1) } else { 0 }
+$totalAfter = ($results | Measure-Object After -Sum).Sum
+$totalSaved = $totalBefore - $totalAfter
+$percent = if ($totalBefore -gt 0) { [math]::Round(($totalSaved / $totalBefore) * 100, 1) } else { 0 }
 
 Add-Content $logFile "=== Run finished $(Get-Date) ==="
 
