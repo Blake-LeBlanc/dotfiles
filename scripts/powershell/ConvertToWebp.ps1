@@ -9,7 +9,7 @@ Add-Type -AssemblyName System.Windows.Forms
 $jpgQuality  = 80
 $pngQuality  = 85
 $dryRun      = $false      # set to $true for testing, $false to actually run
-$throttle    = 6           # number of parallel jobs
+$throttle    = 4           # number of parallel jobs
 $logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
 
 # ---- Folder picker ----
@@ -75,7 +75,8 @@ $results = $files | ForEach-Object -Parallel {
 
     if (Test-Path $dest) {
         $after = (Get-Item $dest).Length
-        Remove-Item "$src" -Recycle
+        # Remove-Item "$src" -Recycle
+        Remove-ItemSafely "$src"
 
         return [pscustomobject]@{
             File   = $src
