@@ -8,7 +8,7 @@ Add-Type -AssemblyName System.Windows.Forms
 # ---- Settings ----
 $jpgQuality  = 80
 $pngQuality  = 85
-$dryRun      = $true      # set to $true for testing, $false to actually run
+$dryRun      = $false      # set to $true for testing, $false to actually run
 $throttle    = 6           # number of parallel jobs
 $logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
 
