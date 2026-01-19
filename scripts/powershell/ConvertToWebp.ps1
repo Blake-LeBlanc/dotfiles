@@ -3,9 +3,9 @@ Add-Type -AssemblyName System.Windows.Forms
 # ---- Settings ----
 $jpgQuality  = 80
 $pngQuality  = 85
-$dryRun      = $false      # set to $true for testing
+$dryRun      = $false      # set $true to test without changing files
 $throttle    = 4           # 1 = sequential, >1 = parallel
-# $logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
+$logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
 
 # ---- Folder picker ----
 $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
@@ -46,9 +46,9 @@ if ($totalFiles -eq 0)
     return
 }
 
-# Add-Content $logFile "`n=== Run started $(Get-Date) ==="
+Add-Content $logFile "`n=== Run started $(Get-Date) ==="
 
-# ---- Adaptive processing ----
+# ---- Adaptive conversion ----
 $results = @()
 
 if ($throttle -eq 1)
@@ -121,52 +121,70 @@ if ($throttle -eq 1)
 } else
 {
 
-    # ---- Parallel loop with main-thread progress ----
+    # ---- Parallel loop using ForEach-Object -Parallel ----
     $progressCounter = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
 
-    # Start background job for parallel processing
-    $job = Start-Job -ScriptBlock {
-        param($files, $jpgQuality, $pngQuality, $dryRun, $progressCounter)
+    $parallelResults = $files | ForEach-Object -Parallel {
 
-        foreach ($file in $files)
+        $counter = $using:progressCounter
+
+        $src = $_.FullName
+        $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
+        $quality = if ($_.Extension -match "png")
+        { $using:pngQuality 
+        } else
+        { $using:jpgQuality 
+        }
+        $before = $_.Length
+
+        if (Test-Path $dest)
         {
-
-            $src = $file.FullName
-            $dest = Join-Path $file.DirectoryName ($file.BaseName + ".webp")
-            $quality = if ($file.Extension -match "png")
-            { $pngQuality 
-            } else
-            { $jpgQuality 
-            }
-            $before = $file.Length
-
-            if (Test-Path $dest)
-            {
-                $progressCounter.Add(1)
-                continue
-            }
-
-            if ($dryRun)
-            {
-                $progressCounter.Add(1)
-                continue
-            }
-
-            # ---- Convert ----
-            magick "$src" -strip -quality $quality "$dest"
-
-            # ---- Recycle original ----
-            if (Test-Path $dest)
-            {
-                Remove-ItemSafely "$src" -Confirm:$false
-            }
-
-            $progressCounter.Add(1)
+            $counter.Add(1)
+            return
         }
 
-    } -ArgumentList $files, $jpgQuality, $pngQuality, $dryRun, $progressCounter
+        if ($using:dryRun)
+        {
+            $counter.Add(1)
+            return [pscustomobject]@{
+                File = $src
+                Before = $before
+                After = 0
+                Saved = 0
+                Status = "DRY RUN"
+            }
+        }
 
-    # ---- Main thread: live progress ----
+        # ---- Convert ----
+        magick "$src" -strip -quality $quality "$dest"
+
+        # ---- Recycle original ----
+        if (Test-Path $dest)
+        {
+            Remove-ItemSafely "$src" -Confirm:$false
+        }
+
+        $after = if (Test-Path $dest)
+        { (Get-Item $dest).Length 
+        } else
+        { 0 
+        }
+
+        # ---- Update progress counter ----
+        $counter.Add(1)
+
+        # ---- Return result for logging ----
+        return [pscustomobject]@{
+            File = $src
+            Before = $before
+            After = $after
+            Saved = $before - $after
+            Status = "OK"
+        }
+
+    } -ThrottleLimit $throttle
+
+    # ---- Main thread: live progress display ----
     while ($progressCounter.Count -lt $totalFiles)
     {
         $percent = ($progressCounter.Count / $totalFiles) * 100
@@ -178,43 +196,19 @@ if ($throttle -eq 1)
 
     Write-Progress -Activity "Converting images to WebP" -Completed
 
-    # ---- Wait for job and gather results ----
-    Wait-Job $job
-    Receive-Job $job | Out-Null
-    Remove-Job $job
-
-    foreach ($file in $files)
+    # ---- Gather results for logging and summary ----
+    foreach ($r in $parallelResults | Where-Object { $_ -ne $null })
     {
-        $dest = Join-Path $file.DirectoryName ($file.BaseName + ".webp")
-        $before = $file.Length
-        $after = if (Test-Path $dest)
-        { (Get-Item $dest).Length 
-        } else
-        { 0 
-        }
-        $status = if ($dryRun)
-        { "DRY RUN" 
-        } elseif (Test-Path $dest)
-        { "OK" 
-        } else
-        { "FAILED" 
-        }
-
-        $results += [pscustomobject]@{
-            File = $file.FullName
-            Before = $before
-            After = $after
-            Saved = $before - $after
-            Status = $status
-        }
+        $results += $r
     }
 }
 
 # ---- Logging ----
-# foreach ($r in $results | Where-Object { $_ -ne $null }) {
-#     Add-Content $logFile ("{0} | {1:N1} KB → {2:N1} KB | Saved {3:N1} KB" -f `
-#         $r.Status, ($r.Before / 1KB), ($r.After / 1KB), ($r.Saved / 1KB))
-# }
+foreach ($r in $results | Where-Object { $_ -ne $null })
+{
+    Add-Content $logFile ("{0} | {1:N1} KB → {2:N1} KB | Saved {3:N1} KB" -f `
+            $r.Status, ($r.Before / 1KB), ($r.After / 1KB), ($r.Saved / 1KB))
+}
 
 # ---- Summary ----
 $totalBefore = ($results | Measure-Object Before -Sum).Sum
@@ -226,7 +220,7 @@ $percent = if ($totalBefore -gt 0)
 { 0 
 }
 
-# Add-Content $logFile "=== Run finished $(Get-Date) ==="
+Add-Content $logFile "=== Run finished $(Get-Date) ==="
 
 Write-Host ""
 Write-Host "================ SUMMARY ================"
@@ -234,6 +228,6 @@ Write-Host ("Files converted : {0}" -f ($results | Where-Object { $_ -ne $null }
 Write-Host ("Before size     : {0:N1} MB" -f ($totalBefore / 1MB))
 Write-Host ("After size      : {0:N1} MB" -f ($totalAfter / 1MB))
 Write-Host ("Space saved     : {0:N1} MB ({1}%)" -f ($totalSaved / 1MB), $percent)
-# Write-Host "Log file: $logFile"
+Write-Host "Log file: $logFile"
 Write-Host "========================================="
 
