@@ -20,9 +20,15 @@ if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK)
 
 $root = $dialog.SelectedPath
 
+# ---- Ask about subdirectories ----
+Write-Host ""
+$recursiveChoice = Read-Host "Include subdirectories? (y/n)"
+$recursive = $recursiveChoice -eq 'y'
+
 # ---- Confirmation ----
 Write-Host ""
 Write-Host "Folder:        $root"
+Write-Host "Recursive:     $recursive"
 Write-Host "JPG quality:   $jpgQuality"
 Write-Host "PNG quality:   $pngQuality"
 Write-Host "Throttle:      $throttle"
@@ -39,7 +45,11 @@ if ($confirm -ne 'y')
 }
 
 # ---- Collect files ----
-$files = Get-ChildItem $root -Recurse -Include *.jpg,*.jpeg,*.png -File
+$files = if ($recursive) {
+    Get-ChildItem $root -Recurse -Include *.jpg,*.jpeg,*.png -File
+} else {
+    Get-ChildItem $root -Include *.jpg,*.jpeg,*.png -File
+}
 $totalFiles = $files.Count
 
 if ($totalFiles -eq 0)
@@ -128,7 +138,11 @@ if ($throttle -eq 1)
 
     # Start background job for parallel processing
     $parallelJob = Start-Job -ScriptBlock {
-        param($files, $throttle, $pngQuality, $jpgQuality, $dryRun)
+        param($files, $throttle, $pngQuality, $jpgQuality, $dryRun, $removeItemSafelyDef)
+        
+        # Recreate Remove-ItemSafely function in job scope
+        $removeItemSafelyScript = [scriptblock]::Create($removeItemSafelyDef)
+        New-Item -Path Function: -Name Remove-ItemSafely -Value $removeItemSafelyScript -Force | Out-Null
         
         $results = $files | ForEach-Object -Parallel {
             $src = $_.FullName
@@ -184,14 +198,22 @@ if ($throttle -eq 1)
         
         return $results
         
-    } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun
+    } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun, (Get-Command Remove-ItemSafely).Definition
 
     # ---- Main thread: live progress display ----
-    $startingWebPCount = (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+    $startingWebPCount = if ($recursive) {
+        (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+    } else {
+        (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+    }
     $completed = 0
     while ($parallelJob.State -eq 'Running')
     {
-        $currentCount = (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+        $currentCount = if ($recursive) {
+            (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+        } else {
+            (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+        }
         $newlyCreated = $currentCount - $startingWebPCount
         if ($newlyCreated -ne $completed)
         {
