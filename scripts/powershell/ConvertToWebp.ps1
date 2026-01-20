@@ -121,78 +121,88 @@ if ($throttle -eq 1)
 } else
 {
 
-    # ---- Parallel loop using ForEach-Object -Parallel ----
+    # ---- Parallel loop using runspace jobs for progress tracking ----
     $progressCounter = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
 
-    $parallelResults = $files | ForEach-Object -Parallel {
+    # Start background job for parallel processing
+    $parallelJob = Start-Job -ScriptBlock {
+        param($files, $throttle, $pngQuality, $jpgQuality, $dryRun)
+        
+        $results = $files | ForEach-Object -Parallel {
+            $src = $_.FullName
+            $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
+            $quality = if ($_.Extension -match "png")
+            { $using:pngQuality 
+            } else
+            { $using:jpgQuality 
+            }
+            $before = $_.Length
 
-        $counter = $using:progressCounter
+            if (Test-Path $dest)
+            {
+                return $null
+            }
 
-        $src = $_.FullName
-        $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
-        $quality = if ($_.Extension -match "png")
-        { $using:pngQuality 
-        } else
-        { $using:jpgQuality 
-        }
-        $before = $_.Length
+            if ($using:dryRun)
+            {
+                return [pscustomobject]@{
+                    File = $src
+                    Before = $before
+                    After = 0
+                    Saved = 0
+                    Status = "DRY RUN"
+                }
+            }
 
-        if (Test-Path $dest)
-        {
-            $counter.Add(1)
-            return
-        }
+            # ---- Convert ----
+            magick "$src" -strip -quality $quality "$dest"
 
-        if ($using:dryRun)
-        {
-            $counter.Add(1)
+            # ---- Recycle original ----
+            if (Test-Path $dest)
+            {
+                Remove-ItemSafely "$src" -Confirm:$false
+            }
+
+            $after = if (Test-Path $dest)
+            { (Get-Item $dest).Length 
+            } else
+            { 0 
+            }
+
+            # ---- Return result for logging ----
             return [pscustomobject]@{
                 File = $src
                 Before = $before
-                After = 0
-                Saved = 0
-                Status = "DRY RUN"
+                After = $after
+                Saved = $before - $after
+                Status = "OK"
             }
-        }
 
-        # ---- Convert ----
-        magick "$src" -strip -quality $quality "$dest"
-
-        # ---- Recycle original ----
-        if (Test-Path $dest)
-        {
-            Remove-ItemSafely "$src" -Confirm:$false
-        }
-
-        $after = if (Test-Path $dest)
-        { (Get-Item $dest).Length 
-        } else
-        { 0 
-        }
-
-        # ---- Update progress counter ----
-        $counter.Add(1)
-
-        # ---- Return result for logging ----
-        return [pscustomobject]@{
-            File = $src
-            Before = $before
-            After = $after
-            Saved = $before - $after
-            Status = "OK"
-        }
-
-    } -ThrottleLimit $throttle
+        } -ThrottleLimit $throttle
+        
+        return $results
+        
+    } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun
 
     # ---- Main thread: live progress display ----
-    while ($progressCounter.Count -lt $totalFiles)
+    $completed = 0
+    while ($parallelJob.State -eq 'Running')
     {
-        $percent = ($progressCounter.Count / $totalFiles) * 100
-        Write-Progress -Activity "Converting images to WebP" `
-            -Status "$($progressCounter.Count) of $totalFiles processed" `
-            -PercentComplete $percent
+        $currentCount = (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+        if ($currentCount -ne $completed)
+        {
+            $completed = $currentCount
+            $percent = if ($totalFiles -gt 0) { ($completed / $totalFiles) * 100 } else { 0 }
+            Write-Progress -Activity "Converting images to WebP" `
+                -Status "$completed of $totalFiles processed" `
+                -PercentComplete $percent
+        }
         Start-Sleep -Milliseconds 200
     }
+
+    # Wait for job to complete and get results
+    $parallelResults = Receive-Job $parallelJob -Wait
+    Remove-Job $parallelJob
 
     Write-Progress -Activity "Converting images to WebP" -Completed
 
@@ -230,4 +240,3 @@ Write-Host ("After size      : {0:N1} MB" -f ($totalAfter / 1MB))
 Write-Host ("Space saved     : {0:N1} MB ({1}%)" -f ($totalSaved / 1MB), $percent)
 Write-Host "Log file: $logFile"
 Write-Host "========================================="
-
