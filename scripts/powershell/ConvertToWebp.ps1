@@ -5,6 +5,7 @@ $jpgQuality  = 80
 $pngQuality  = 85
 $dryRun      = $false      # set $true to test without changing files
 $throttle    = 4           # 1 = sequential, >1 = parallel
+$detailedLog = $false      # set $true to log every file conversion
 $logFile     = Join-Path $PSScriptRoot "webp-conversion.log"
 
 # ---- Folder picker ----
@@ -26,6 +27,7 @@ Write-Host "JPG quality:   $jpgQuality"
 Write-Host "PNG quality:   $pngQuality"
 Write-Host "Throttle:      $throttle"
 Write-Host "Dry run:       $dryRun"
+Write-Host "Detailed log:  $detailedLog"
 Write-Host "Originals:     Recycle Bin"
 Write-Host ""
 
@@ -185,14 +187,16 @@ if ($throttle -eq 1)
     } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun
 
     # ---- Main thread: live progress display ----
+    $startingWebPCount = (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
     $completed = 0
     while ($parallelJob.State -eq 'Running')
     {
         $currentCount = (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
-        if ($currentCount -ne $completed)
+        $newlyCreated = $currentCount - $startingWebPCount
+        if ($newlyCreated -ne $completed)
         {
-            $completed = $currentCount
-            $percent = if ($totalFiles -gt 0) { ($completed / $totalFiles) * 100 } else { 0 }
+            $completed = $newlyCreated
+            $percent = if ($totalFiles -gt 0) { [Math]::Min(($completed / $totalFiles) * 100, 100) } else { 0 }
             Write-Progress -Activity "Converting images to WebP" `
                 -Status "$completed of $totalFiles processed" `
                 -PercentComplete $percent
@@ -214,10 +218,13 @@ if ($throttle -eq 1)
 }
 
 # ---- Logging ----
-foreach ($r in $results | Where-Object { $_ -ne $null })
+if ($detailedLog)
 {
-    Add-Content $logFile ("{0} | {1:N1} KB → {2:N1} KB | Saved {3:N1} KB" -f `
-            $r.Status, ($r.Before / 1KB), ($r.After / 1KB), ($r.Saved / 1KB))
+    foreach ($r in $results | Where-Object { $_ -ne $null })
+    {
+        Add-Content $logFile ("{0} | {1:N1} KB → {2:N1} KB | Saved {3:N1} KB" -f `
+                $r.Status, ($r.Before / 1KB), ($r.After / 1KB), ($r.Saved / 1KB))
+    }
 }
 
 # ---- Summary ----
@@ -231,6 +238,10 @@ $percent = if ($totalBefore -gt 0)
 }
 
 Add-Content $logFile "=== Run finished $(Get-Date) ==="
+Add-Content $logFile ("Files converted : {0}" -f ($results | Where-Object { $_ -ne $null }).Count)
+Add-Content $logFile ("Before size     : {0:N1} MB" -f ($totalBefore / 1MB))
+Add-Content $logFile ("After size      : {0:N1} MB" -f ($totalAfter / 1MB))
+Add-Content $logFile ("Space saved     : {0:N1} MB ({1}%)" -f ($totalSaved / 1MB), $percent)
 
 Write-Host ""
 Write-Host "================ SUMMARY ================"
