@@ -45,6 +45,7 @@ if ($confirm -ne 'y')
 }
 
 # ---- Collect files ----
+Write-Host "Searching in: $root" -ForegroundColor Cyan
 $files = if ($recursive) {
     Get-ChildItem $root -Recurse -Include *.jpg,*.jpeg,*.png -File
 } else {
@@ -55,6 +56,13 @@ $files = if ($recursive) {
     )
 }
 $totalFiles = $files.Count
+
+Write-Host "Found $totalFiles image(s) to convert" -ForegroundColor Cyan
+if ($totalFiles -gt 0 -and $totalFiles -le 10) {
+    Write-Host "Files to convert:" -ForegroundColor Cyan
+    $files | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor Gray }
+}
+Write-Host ""
 
 if ($totalFiles -eq 0)
 {
@@ -85,13 +93,17 @@ if ($throttle -eq 1)
         $quality = if ($file.Extension -match "png") { $pngQuality } else { $jpgQuality }
         $before = $file.Length
 
+        Write-Host "[$index/$totalFiles] Processing: $($file.Name)" -ForegroundColor Yellow
+
         if (Test-Path $dest)
         {
+            Write-Host "  → Skipping (WebP already exists)" -ForegroundColor DarkGray
             continue
         }
 
         if ($dryRun)
         {
+            Write-Host "  → DRY RUN (no changes made)" -ForegroundColor Magenta
             $results += [pscustomobject]@{
                 File = $src
                 Before = $before
@@ -103,12 +115,19 @@ if ($throttle -eq 1)
         }
 
         # ---- Convert ----
+        Write-Host "  → Converting (quality: $quality)..." -ForegroundColor Cyan -NoNewline
         magick "$src" -strip -quality $quality "$dest"
 
         # ---- Recycle original ----
         if (Test-Path $dest)
         {
+            Write-Host " Done!" -ForegroundColor Green
+            Write-Host "  → Recycling original" -ForegroundColor DarkGray
             Remove-ItemSafely "$src" -Confirm:$false
+        }
+        else
+        {
+            Write-Host " FAILED!" -ForegroundColor Red
         }
 
         $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
