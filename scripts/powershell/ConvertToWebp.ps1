@@ -45,10 +45,22 @@ if ($confirm -ne 'y')
 }
 
 # ---- Collect files ----
+Write-Host "Debug: Searching in '$root'" -ForegroundColor Yellow
 $files = if ($recursive) {
     Get-ChildItem $root -Recurse -Include *.jpg,*.jpeg,*.png -File
 } else {
-    Get-ChildItem $root -Include *.jpg,*.jpeg,*.png -File
+    @(
+        Get-ChildItem $root -Filter *.jpg -File
+        Get-ChildItem $root -Filter *.jpeg -File
+        Get-ChildItem $root -Filter *.png -File
+    )
+}
+Write-Host "Debug: Found $($files.Count) files" -ForegroundColor Yellow
+if ($files.Count -gt 0 -and $files.Count -le 5) {
+    Write-Host "Debug: First few files:" -ForegroundColor Yellow
+    $files | Select-Object -First 5 | ForEach-Object { 
+        Write-Host "  - Name: $($_.Name) | BaseName: $($_.BaseName) | Extension: $($_.Extension)" -ForegroundColor Yellow 
+    }
 }
 $totalFiles = $files.Count
 
@@ -87,8 +99,11 @@ if ($throttle -eq 1)
         }
         $before = $file.Length
 
+        Write-Host "Debug: Processing $($file.Name) -> $($file.BaseName).webp" -ForegroundColor Cyan
+
         if (Test-Path $dest)
         {
+            Write-Host "Debug: Skipping - WebP already exists: $dest" -ForegroundColor Yellow
             continue
         }
 
@@ -105,12 +120,18 @@ if ($throttle -eq 1)
         }
 
         # ---- Convert ----
+        Write-Host "Debug: Converting with quality $quality" -ForegroundColor Green
         magick "$src" -strip -quality $quality "$dest"
 
         # ---- Recycle original ----
         if (Test-Path $dest)
         {
+            Write-Host "Debug: Conversion successful, recycling original" -ForegroundColor Green
             Remove-ItemSafely "$src" -Confirm:$false
+        }
+        else
+        {
+            Write-Host "Debug: ERROR - Conversion failed, dest file not created!" -ForegroundColor Red
         }
 
         $after = if (Test-Path $dest)
@@ -132,111 +153,101 @@ if ($throttle -eq 1)
 
 } else
 {
-
-    # ---- Parallel loop using runspace jobs for progress tracking ----
-    $progressCounter = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
-
-    # Start background job for parallel processing
-    $parallelJob = Start-Job -ScriptBlock {
-        param($files, $throttle, $pngQuality, $jpgQuality, $dryRun, $removeItemSafelyDef)
-        
-        # Recreate Remove-ItemSafely function in job scope
-        $removeItemSafelyScript = [scriptblock]::Create($removeItemSafelyDef)
-        New-Item -Path Function: -Name Remove-ItemSafely -Value $removeItemSafelyScript -Force | Out-Null
-        
-        $results = $files | ForEach-Object -Parallel {
-            $src = $_.FullName
-            $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
-            $quality = if ($_.Extension -match "png")
-            { $using:pngQuality 
-            } else
-            { $using:jpgQuality 
-            }
-            $before = $_.Length
-
-            if (Test-Path $dest)
-            {
-                return $null
-            }
-
-            if ($using:dryRun)
-            {
-                return [pscustomobject]@{
-                    File = $src
-                    Before = $before
-                    After = 0
-                    Saved = 0
-                    Status = "DRY RUN"
-                }
-            }
-
-            # ---- Convert ----
-            magick "$src" -strip -quality $quality "$dest"
-
-            # ---- Recycle original ----
-            if (Test-Path $dest)
-            {
-                Remove-ItemSafely "$src" -Confirm:$false
-            }
-
-            $after = if (Test-Path $dest)
-            { (Get-Item $dest).Length 
-            } else
-            { 0 
-            }
-
-            # ---- Return result for logging ----
-            return [pscustomobject]@{
-                File = $src
-                Before = $before
-                After = $after
-                Saved = $before - $after
-                Status = "OK"
-            }
-
-        } -ThrottleLimit $throttle
-        
-        return $results
-        
-    } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun, (Get-Command Remove-ItemSafely).Definition
-
-    # ---- Main thread: live progress display ----
-    $startingWebPCount = if ($recursive) {
-        (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
-    } else {
-        (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
-    }
-    $completed = 0
-    while ($parallelJob.State -eq 'Running')
-    {
-        $currentCount = if ($recursive) {
+    # ---- Parallel loop using ForEach-Object -Parallel directly ----
+    
+    # Start a background runspace to track progress
+    $syncHash = [hashtable]::Synchronized(@{
+        Completed = 0
+        Total = $totalFiles
+    })
+    
+    $progressRunspace = [runspacefactory]::CreateRunspace()
+    $progressRunspace.Open()
+    $progressRunspace.SessionStateProxy.SetVariable("syncHash", $syncHash)
+    $progressRunspace.SessionStateProxy.SetVariable("root", $root)
+    $progressRunspace.SessionStateProxy.SetVariable("recursive", $recursive)
+    
+    $progressScript = [powershell]::Create().AddScript({
+        $startingWebPCount = if ($recursive) {
             (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
         } else {
             (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
         }
-        $newlyCreated = $currentCount - $startingWebPCount
-        if ($newlyCreated -ne $completed)
-        {
-            $completed = $newlyCreated
-            $percent = if ($totalFiles -gt 0) { [Math]::Min(($completed / $totalFiles) * 100, 100) } else { 0 }
+        
+        while ($syncHash.Completed -lt $syncHash.Total) {
+            $currentCount = if ($recursive) {
+                (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+            } else {
+                (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+            }
+            $newlyCreated = $currentCount - $startingWebPCount
+            $syncHash.Completed = $newlyCreated
+            
+            $percent = if ($syncHash.Total -gt 0) { 
+                [Math]::Min(($newlyCreated / $syncHash.Total) * 100, 100) 
+            } else { 0 }
+            
             Write-Progress -Activity "Converting images to WebP" `
-                -Status "$completed of $totalFiles processed" `
+                -Status "$newlyCreated of $($syncHash.Total) processed" `
                 -PercentComplete $percent
+            
+            Start-Sleep -Milliseconds 200
         }
-        Start-Sleep -Milliseconds 200
-    }
+        Write-Progress -Activity "Converting images to WebP" -Completed
+    })
+    
+    $progressScript.Runspace = $progressRunspace
+    $progressHandle = $progressScript.BeginInvoke()
+    
+    # Process files in parallel
+    $results = $files | ForEach-Object -Parallel {
+        $src = $_.FullName
+        $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
+        $quality = if ($_.Extension -match "png") { $using:pngQuality } else { $using:jpgQuality }
+        $before = $_.Length
 
-    # Wait for job to complete and get results
-    $parallelResults = Receive-Job $parallelJob -Wait
-    Remove-Job $parallelJob
+        if (Test-Path $dest) {
+            return $null
+        }
 
-    Write-Progress -Activity "Converting images to WebP" -Completed
+        if ($using:dryRun) {
+            return [pscustomobject]@{
+                File = $src
+                Before = $before
+                After = 0
+                Saved = 0
+                Status = "DRY RUN"
+            }
+        }
 
-    # ---- Gather results for logging and summary ----
-    foreach ($r in $parallelResults | Where-Object { $_ -ne $null })
-    {
-        $results += $r
-    }
+        # Convert
+        & magick "$src" -strip -quality $quality "$dest" 2>$null
+
+        # Recycle original
+        if (Test-Path $dest) {
+            Remove-ItemSafely "$src" -Confirm:$false
+        }
+
+        $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
+
+        return [pscustomobject]@{
+            File = $src
+            Before = $before
+            After = $after
+            Saved = $before - $after
+            Status = "OK"
+        }
+    } -ThrottleLimit $throttle
+    
+    # Signal progress tracking to complete
+    $syncHash.Completed = $syncHash.Total
+    Start-Sleep -Milliseconds 500  # Give progress tracker time to update
+    
+    # Cleanup progress tracker
+    $progressScript.EndInvoke($progressHandle)
+    $progressScript.Dispose()
+    $progressRunspace.Close()
+    $progressRunspace.Dispose()
 }
 
 # ---- Logging ----
