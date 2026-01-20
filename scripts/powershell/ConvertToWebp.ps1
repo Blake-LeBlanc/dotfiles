@@ -153,101 +153,87 @@ if ($throttle -eq 1)
 
 } else
 {
-    # ---- Parallel loop using ForEach-Object -Parallel directly ----
+    # ---- Parallel loop with progress tracking ----
     
-    # Start a background runspace to track progress
-    $syncHash = [hashtable]::Synchronized(@{
-        Completed = 0
-        Total = $totalFiles
-    })
+    # Count existing WebP files before starting
+    $startingWebPCount = if ($recursive) {
+        (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+    } else {
+        (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
+    }
     
-    $progressRunspace = [runspacefactory]::CreateRunspace()
-    $progressRunspace.Open()
-    $progressRunspace.SessionStateProxy.SetVariable("syncHash", $syncHash)
-    $progressRunspace.SessionStateProxy.SetVariable("root", $root)
-    $progressRunspace.SessionStateProxy.SetVariable("recursive", $recursive)
+    # Start the parallel processing as a background job
+    $conversionJob = Start-ThreadJob -ScriptBlock {
+        param($files, $throttle, $pngQuality, $jpgQuality, $dryRun)
+        
+        $results = $files | ForEach-Object -Parallel {
+            $src = $_.FullName
+            $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
+            $quality = if ($_.Extension -match "png") { $using:pngQuality } else { $using:jpgQuality }
+            $before = $_.Length
+
+            if (Test-Path $dest) {
+                return $null
+            }
+
+            if ($using:dryRun) {
+                return [pscustomobject]@{
+                    File = $src
+                    Before = $before
+                    After = 0
+                    Saved = 0
+                    Status = "DRY RUN"
+                }
+            }
+
+            # Convert
+            & magick "$src" -strip -quality $quality "$dest" 2>$null
+
+            # Recycle original
+            if (Test-Path $dest) {
+                Remove-ItemSafely "$src" -Confirm:$false
+            }
+
+            $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
+
+            return [pscustomobject]@{
+                File = $src
+                Before = $before
+                After = $after
+                Saved = $before - $after
+                Status = "OK"
+            }
+        } -ThrottleLimit $throttle
+        
+        return $results
+        
+    } -ArgumentList $files, $throttle, $pngQuality, $jpgQuality, $dryRun
     
-    $progressScript = [powershell]::Create().AddScript({
-        $startingWebPCount = if ($recursive) {
+    # Monitor progress in the main thread
+    while ($conversionJob.State -eq 'Running') {
+        $currentCount = if ($recursive) {
             (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
         } else {
             (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
         }
         
-        while ($syncHash.Completed -lt $syncHash.Total) {
-            $currentCount = if ($recursive) {
-                (Get-ChildItem $root -Recurse -Filter *.webp -File -ErrorAction SilentlyContinue).Count
-            } else {
-                (Get-ChildItem $root -Filter *.webp -File -ErrorAction SilentlyContinue).Count
-            }
-            $newlyCreated = $currentCount - $startingWebPCount
-            $syncHash.Completed = $newlyCreated
-            
-            $percent = if ($syncHash.Total -gt 0) { 
-                [Math]::Min(($newlyCreated / $syncHash.Total) * 100, 100) 
-            } else { 0 }
-            
-            Write-Progress -Activity "Converting images to WebP" `
-                -Status "$newlyCreated of $($syncHash.Total) processed" `
-                -PercentComplete $percent
-            
-            Start-Sleep -Milliseconds 200
-        }
-        Write-Progress -Activity "Converting images to WebP" -Completed
-    })
+        $newlyCreated = $currentCount - $startingWebPCount
+        $percent = if ($totalFiles -gt 0) { 
+            [Math]::Min(($newlyCreated / $totalFiles) * 100, 100) 
+        } else { 0 }
+        
+        Write-Progress -Activity "Converting images to WebP" `
+            -Status "$newlyCreated of $totalFiles processed" `
+            -PercentComplete $percent
+        
+        Start-Sleep -Milliseconds 300
+    }
     
-    $progressScript.Runspace = $progressRunspace
-    $progressHandle = $progressScript.BeginInvoke()
+    # Get results
+    $results = Receive-Job $conversionJob -Wait
+    Remove-Job $conversionJob
     
-    # Process files in parallel
-    $results = $files | ForEach-Object -Parallel {
-        $src = $_.FullName
-        $dest = Join-Path $_.DirectoryName ($_.BaseName + ".webp")
-        $quality = if ($_.Extension -match "png") { $using:pngQuality } else { $using:jpgQuality }
-        $before = $_.Length
-
-        if (Test-Path $dest) {
-            return $null
-        }
-
-        if ($using:dryRun) {
-            return [pscustomobject]@{
-                File = $src
-                Before = $before
-                After = 0
-                Saved = 0
-                Status = "DRY RUN"
-            }
-        }
-
-        # Convert
-        & magick "$src" -strip -quality $quality "$dest" 2>$null
-
-        # Recycle original
-        if (Test-Path $dest) {
-            Remove-ItemSafely "$src" -Confirm:$false
-        }
-
-        $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
-
-        return [pscustomobject]@{
-            File = $src
-            Before = $before
-            After = $after
-            Saved = $before - $after
-            Status = "OK"
-        }
-    } -ThrottleLimit $throttle
-    
-    # Signal progress tracking to complete
-    $syncHash.Completed = $syncHash.Total
-    Start-Sleep -Milliseconds 500  # Give progress tracker time to update
-    
-    # Cleanup progress tracker
-    $progressScript.EndInvoke($progressHandle)
-    $progressScript.Dispose()
-    $progressRunspace.Close()
-    $progressRunspace.Dispose()
+    Write-Progress -Activity "Converting images to WebP" -Completed
 }
 
 # ---- Logging ----
