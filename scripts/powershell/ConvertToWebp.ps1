@@ -122,7 +122,7 @@ if ($throttle -eq 1)
         }
     }
 
-    Write-Progress -Activity "Converting images to WebP" -Completed
+    Write-Progress -Activity "Converting images to WebP" -Completed -Id 1
 
 } else {
     # ---- Parallel loop using ForEach-Object -Parallel ----
@@ -181,14 +181,24 @@ if ($throttle -eq 1)
     } -ThrottleLimit $throttle
 
     # ---- Main thread: live progress display ----
-    while ($progressCounter.Count -lt $totalFiles)
-    {
-        $percent = ($progressCounter.Count / $totalFiles) * 100
-        Write-Progress -Activity "Converting images to WebP" `
-            -Status "$($progressCounter.Count) of $totalFiles processed" `
-            -PercentComplete $percent
-        Start-Sleep -Milliseconds 200
-    }
+    $lastCount = 0
+    do {
+        $currentCount = $progressCounter.Count
+        if ($currentCount -ne $lastCount) {
+            $lastCount = $currentCount
+            $percent = if ($totalFiles -gt 0) { ($currentCount / $totalFiles) * 100 } else { 0 }
+            Write-Progress -Activity "Converting images to WebP" `
+                -Status "$currentCount of $totalFiles processed" `
+                -PercentComplete $percent -Id 1
+        }
+        Start-Sleep -Milliseconds 100
+    } while ($progressCounter.Count -lt $totalFiles)
+    
+    # Final update to ensure 100%
+    Write-Progress -Activity "Converting images to WebP" `
+        -Status "$totalFiles of $totalFiles processed" `
+        -PercentComplete 100 -Id 1
+    Start-Sleep -Milliseconds 500
 
     Write-Progress -Activity "Converting images to WebP" -Completed
 
