@@ -95,7 +95,7 @@ if ($throttle -eq 1)
 
         Write-Host "[$index/$totalFiles] Processing: $($file.Name)" -ForegroundColor Yellow
 
-        if (Test-Path $dest)
+        if (Test-Path -LiteralPath $dest)
         {
             Write-Host "  → Skipping (WebP already exists)" -ForegroundColor DarkGray
             continue
@@ -119,7 +119,7 @@ if ($throttle -eq 1)
         magick "$src" -strip -quality $quality "$dest"
 
         # ---- Recycle original ----
-        if (Test-Path $dest)
+        if (Test-Path -LiteralPath $dest)
         {
             Write-Host " Done!" -ForegroundColor Green
             Write-Host "  → Recycling original" -ForegroundColor DarkGray
@@ -130,7 +130,7 @@ if ($throttle -eq 1)
             Write-Host " FAILED!" -ForegroundColor Red
         }
 
-        $after = if (Test-Path $dest) { (Get-Item $dest).Length } else { 0 }
+        $after = if (Test-Path -LiteralPath $dest) { (Get-Item -LiteralPath $dest).Length } else { 0 }
 
         $results += [pscustomobject]@{
             File = $src
