@@ -149,3 +149,4 @@ function y {
     }
     Remove-Item -Path $tmp
 }
+(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
