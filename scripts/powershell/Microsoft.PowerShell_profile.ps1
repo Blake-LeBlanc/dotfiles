@@ -1,10 +1,10 @@
 # My longtime tried and true
-# Import-Module posh-git
-# # No symbols/nerd fonts
-# $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
-# $GitPromptSettings.DefaultPromptBeforeSuffix.Text = '`n$([DateTime]::now.ToString("MM-dd HH:mm:ss"))'
-# $GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
-# $GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) '
+Import-Module posh-git
+# No symbols/nerd fonts
+$GitPromptSettings.DefaultPromptWriteStatusFirst = $true
+$GitPromptSettings.DefaultPromptBeforeSuffix.Text = '`n$([DateTime]::now.ToString("MM-dd HH:mm:ss"))'
+$GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
+$GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) '
 #
 # ---
 #
@@ -137,8 +137,8 @@ function lsh {
 # Set-Alias npm pnpm
 
 # Starship
-$env:STARSHIP_CONFIG = "$env:USERPROFILE\dotfiles\starship\starship.toml"
-Invoke-Expression (&starship init powershell)
+# $env:STARSHIP_CONFIG = "$env:USERPROFILE\dotfiles\starship\starship.toml"
+# Invoke-Expression (&starship init powershell)
 # TransientPrompt Kept showing a weird character symbol, disabling for now...
 # Enable-TransientPrompt
 
