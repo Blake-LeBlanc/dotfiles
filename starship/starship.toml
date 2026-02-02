@@ -1,51 +1,112 @@
-# Personal attempt with ChatGPT modifications on syntax
-# DOES NOT DISPLAY PROPERLY
+# # Personal attempt with ChatGPT modifications on syntax
+# # DOES NOT DISPLAY PROPERLY
+# # [directory]
+# # truncation_length = 3
+# # format = "[$path]($style) "  # Display the full path
+# #
+# # [custom.time]
+# # command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
+# # when = "true"
+# # style = "dimmed"
+# #
+# # [custom.command_count]
+# # command = "(Get-History | Measure-Object).Count"
+# # when = "true"
+# # style = "bold white"
+# #
+# # [character]
+# # symbol = ">"
+# # style = "bold white"
+# #
+# # [format]
+# # format = "$directory\\n$custom.time $custom.command_count$character"
+#
+# # From claude.ai
+# # DOES NOT WORK!!
+# # Global settings
+# command_timeout = 5000
+#
+# # Show git branch first
+# [git_branch]
+# format = "[$branch]($style) "
+#
+# # Show full directory path
 # [directory]
-# truncation_length = 3
-# format = "[$path]($style) "  # Display the full path
+# truncation_length = 0
+# truncate_to_repo = false
+# format = "[$path]($style)"
 #
-# [custom.time]
+# # Custom datetime stamp
+# [custom.datetime]
 # command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
-# when = "true"
-# style = "dimmed"
+# when = "pwsh"
+# style = "grey"
 #
-# [custom.command_count]
-# command = "(Get-History | Measure-Object).Count"
-# when = "true"
-# style = "bold white"
-#
+# # The prompt character
 # [character]
-# symbol = ">"
-# style = "bold white"
+# success_symbol = ">"
+# error_symbol = ">"
 #
-# [format]
-# format = "$directory\\n$custom.time $custom.command_count$character"
+# # Put it all together
+# format = "$git_branch$directory\n$datetime$character"
 
-# From claude.ai
-# DOES NOT WORK!!
-# Global settings
-command_timeout = 5000
+# Try 2, with Claude
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
 
-# Show git branch first
-[git_branch]
-format = "[$branch]($style) "
+# Main prompt format
+format = """
+$directory\
+$git_branch\
+$git_status\
+$line_break\
+$time\
+$line_break\
+$cmd_duration\
+$character"""
 
-# Show full directory path
+# Directory configuration
 [directory]
-truncation_length = 0
+format = "[$path]($style) "
+style = "cyan bold"
+truncation_length = 3
 truncate_to_repo = false
-format = "[$path]($style)"
 
-# Custom datetime stamp
-[custom.datetime]
-command = "(Get-Date).ToString('MM-dd HH:mm:ss')"
-when = "pwsh"
-style = "grey"
+# Git branch
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "yellow bold"
+symbol = ""
 
-# The prompt character
+# Git status (matches posh-git indicators)
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "red bold"
+conflicted = "!"
+ahead = "↑${count}"
+behind = "↓${count}"
+diverged = "↕↑${ahead_count}↓${behind_count}"
+untracked = "?"
+stashed = "$"
+modified = "~"
+staged = "+"
+renamed = ">"
+deleted = "-"
+
+# Time (matches your MM-dd HH:mm:ss format)
+[time]
+disabled = false
+format = '[$time]($style)'
+style = "bright-black"
+time_format = "%m-%d %H:%M:%S"
+
+# Command duration (optional, but useful)
+[cmd_duration]
+format = "took [$duration]($style) "
+style = "yellow"
+min_time = 2000
+
+# Character (the prompt symbol)
 [character]
-success_symbol = ">"
-error_symbol = ">"
-
-# Put it all together
-format = "$git_branch$directory\n$datetime$character"
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
