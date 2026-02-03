@@ -1,11 +1,13 @@
+# My longtime tried and true
 Import-Module posh-git
-
 # No symbols/nerd fonts
 $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
 $GitPromptSettings.DefaultPromptBeforeSuffix.Text = '`n$([DateTime]::now.ToString("MM-dd HH:mm:ss"))'
 $GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
 $GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) '
-
+#
+# ---
+#
 # With symbols/nerd fonts
 # $Symbols = @{
 #     Branch       = [char]0xE725  # 
@@ -128,6 +130,8 @@ Set-Alias -Name ls -Value Get-ChildItem
 function lsh {
     Get-ChildItem -Force @args | less
 }
+
+# uv
 (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
 (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
@@ -135,8 +139,10 @@ function lsh {
 # Set-Alias npm pnpm
 
 # Starship
+# $env:STARSHIP_CONFIG = "$env:USERPROFILE\dotfiles\starship\starship.toml"
 # Invoke-Expression (&starship init powershell)
-# $ENV:STARSHIP_CONFIG = "$HOME\dotfiles\starship\starship.toml"
+# TransientPrompt Kept showing a weird character symbol, disabling for now...
+# Enable-TransientPrompt
 
 # yazi
 # Use `y` to have the shell "follow" your path location. `q` to quit with follow, `Q` to quit without follow
