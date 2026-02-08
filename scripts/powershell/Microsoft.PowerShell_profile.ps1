@@ -1,3 +1,5 @@
+Write-Host "Profile loaded from: $PSCommandPath" -ForegroundColor Green
+
 Import-Module posh-git
 
 # No symbols/nerd fonts
@@ -125,11 +127,12 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
 
 # Updated to reinstate original ls alias, set | less version as lsh
 Set-Alias -Name ls -Value Get-ChildItem
+
 function lsh {
     Get-ChildItem -Force @args | less
 }
-(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
-(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+# (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+# (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
 # Trying to find a way to have Mason use pnpm rather than npm for node related dependencies...
 # Set-Alias npm pnpm
