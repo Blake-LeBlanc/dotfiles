@@ -1,11 +1,11 @@
 Write-Host "Profile loaded from: $PSCommandPath" -ForegroundColor Green
+
 Import-Module posh-git
 # No symbols/nerd fonts
 $GitPromptSettings.DefaultPromptWriteStatusFirst = $true
 $GitPromptSettings.DefaultPromptBeforeSuffix.Text = '`n$([DateTime]::now.ToString("MM-dd HH:mm:ss"))'
 $GitPromptSettings.DefaultPromptBeforeSuffix.ForegroundColor = 0x808080
 $GitPromptSettings.DefaultPromptSuffix = ' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) '
-
 
 # With symbols/nerd fonts
 # $Symbols = @{
