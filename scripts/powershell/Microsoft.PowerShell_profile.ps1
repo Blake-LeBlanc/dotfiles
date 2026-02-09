@@ -132,8 +132,8 @@ function lsh {
 }
 
 # uv
-(& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
-(& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
+# (& uv generate-shell-completion powershell) | Out-String | Invoke-Expression
+# (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
 # Trying to find a way to have Mason use pnpm rather than npm for node related dependencies...
 # Set-Alias npm pnpm
