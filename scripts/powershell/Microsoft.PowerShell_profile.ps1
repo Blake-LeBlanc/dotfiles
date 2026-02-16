@@ -155,3 +155,6 @@ function y {
     }
     Remove-Item -Path $tmp
 }
+
+# lazygit
+$env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"

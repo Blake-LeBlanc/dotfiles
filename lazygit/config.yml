@@ -227,24 +227,20 @@ gui:
 git:
   # See https://github.com/jesseduffield/lazygit/blob/master/docs/Custom_Pagers.md
   pagers:
-    - # Value of the --color arg in the git diff command. Some pagers want this to be set to 'always' and some want it set to 'never'
-      colorArg: always
-      # e.g.
+    - colorArg: always
+      # Value of the --color arg in the git diff command. Some pagers want this to be set to 'always' and some want it set to 'never'
 
-      # diff-so-fancy
-
-      # delta --dark --paging=never
-
-      # ydiff -p cat -s --wrap --width={{columnWidth}}
-
-      # pager: ""
-      pager: delta --navigate --side-by-side --light --paging=never
-      # If true, Lazygit will use whatever pager is specified in `$GIT_PAGER`, `$PAGER`, or your *git config*. If the pager ends with something like ` | less` we will strip that part out, because less doesn't play nice with our rendering approach. If the custom pager uses less under the hood, that will also break rendering (hence the `--paging=never` flag for the `delta` pager).
+      # pager: delta --navigate --side-by-side --light --paging=never
+      pager: delta --side-by-side --light --paging=never
+    # - pager: C:\Users\blake.leblanc\scoop\shims\delta.exe --side-by-side --light --paging=never
+    # - pager: C:\Users\blake.leblanc\scoop\shims\delta --side-by-side --light --paging=never
+      # pager: delta --light --paging=never --syntax-theme base16-256 -s
 
       useConfig: false
       # e.g. 'difft --color=always'
 
       externalDiffCommand: ""
+      # externalDiffCommand: "C:\Users\blake.leblanc\dotfiles\lazygit\delta-pager.bat"
   # Config relating to committing
 
   commit:
