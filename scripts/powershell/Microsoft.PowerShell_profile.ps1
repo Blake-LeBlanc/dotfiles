@@ -158,3 +158,7 @@ function y {
 
 # lazygit
 $env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"
+
+# pay-respects
+# defaults to `f`, enable to change to another key
+# pay-respects pwsh --alias F
