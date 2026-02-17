@@ -162,3 +162,5 @@ $env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"
 # pay-respects
 # defaults to `f`, enable to change to another key
 # pay-respects pwsh --alias F
+# pay-respects pwsh --alias F | Set-Content -Encoding UTF8 $PROFILE
+# Invoke-Expression ((& pay-respects pwsh --alias f) -join "`n")
