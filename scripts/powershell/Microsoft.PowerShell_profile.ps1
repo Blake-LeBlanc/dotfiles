@@ -136,7 +136,7 @@ function lsh {
 # (& uvx --generate-shell-completion powershell) | Out-String | Invoke-Expression
 
 # Trying to find a way to have Mason use pnpm rather than npm for node related dependencies...
-# Set-Alias npm pnpm
+Set-Alias npm pnp
 
 # Starship
 # $env:STARSHIP_CONFIG = "$env:USERPROFILE\dotfiles\starship\starship.toml"
