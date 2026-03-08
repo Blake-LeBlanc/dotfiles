@@ -1,8 +1,3 @@
-; FIXME: How can you hide this personal info?
-[user]
-	email = blake.leblanc1@gmail.com
-	name = Blake LeBlanc
-
 [push]
 	default = matching
 
