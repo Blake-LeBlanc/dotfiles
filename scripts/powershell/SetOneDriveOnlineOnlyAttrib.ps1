@@ -1,18 +1,18 @@
 $onedriveRoot = "$env:USERPROFILE\OneDrive"
 
 $keepLocal = @(
-    "Music/1_Soundtracks and Instrumentals"
-    ,"Music/Alt-J"
-    ,"Music/Atoms for Peace"
-    ,"Music/Billy Corgan"
-    ,"Music/Billy Mohler"
-    ,"Music/Radiohead"
-    ,"Music/Red Hot Chili Peppers"
-    ,"Music/The Smashing Pumpkins"
-    ,"Music/The Smile"
-    ,"Music/Thom Yorke"
-    ,"Music/Tool"
-    ,"Music/Zwan"
+    "Music\1_Soundtracks and Instrumentals"
+    ,"Music\Alt-J"
+    ,"Music\Atoms for Peace"
+    ,"Music\Billy Corgan"
+    ,"Music\Billy Mohler"
+    ,"Music\Radiohead"
+    ,"Music\Red Hot Chili Peppers"
+    ,"Music\The Smashing Pumpkins"
+    ,"Music\The Smile"
+    ,"Music\Thom Yorke"
+    ,"Music\Tool"
+    ,"Music\Zwan"
     ,"0_book_notes"
     ,"0_books"
     ,"0_Notes"
@@ -44,9 +44,12 @@ if ($invalidDirs.Count -gt 0) {
 Write-Host "`nCalculating space usage..." -ForegroundColor Yellow
 
 $toEvict = Get-ChildItem -Path $onedriveRoot -Recurse -File |
-    Where-Object { 
-        $_.Attributes -notmatch "Offline" -and
-        -not ($keepLocalFull | Where-Object { $_.FullName.StartsWith($_) })
+    Where-Object {
+        $filePath = $_.FullName
+        if (-not $filePath) { return $false }
+        # $_.Attributes -notmatch "Offline"
+        -not ($_.Attributes -band [System.IO.FileAttributes]::Offline) -and
+        -not ($keepLocalFull | Where-Object { $filePath.StartsWith($_) })
     }
 
 $totalSize = ($toEvict | Measure-Object -Property Length -Sum).Sum
@@ -75,7 +78,7 @@ Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
     $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
 
     if (-not $shouldKeep) {
-        attrib "+U" "-P" $file
+        & attrib "+U" "-P" $file
         $resetCount++
     }
 }
