@@ -12,6 +12,7 @@ local config = wezterm.config_builder()
 -- config.color_scheme = "BlulocoLight"
 -- config.color_scheme = "Catppuccin Latte"
 -- config.color_scheme = 'Catppuccin Latte (Gogh)'
+-- config.color_scheme = 'Classic Light (base16)'
 -- NO config.color_scheme = "Clrs (Gogh)"
 -- config.color_scheme = "dawnfox"
 -- NO config.color_scheme = "dayfox"
@@ -36,6 +37,7 @@ config.color_scheme = "Ivory Light (terminal.sexy)"
 -- config.color_scheme = "Breadog (Gogh)"
 
 -- }}}
+
 -- cursor {{{
 config.animation_fps = 60
 -- config.cursor_blink_ease_in = "EaseOut"
@@ -49,15 +51,17 @@ config.default_cursor_style = "BlinkingBlock"
 config.cursor_blink_rate = 600
 
 -- }}}
+
 -- font {{{
 -- config.font = wezterm.font("JetBrainsMonoNL Nerd Font")
 config.font = wezterm.font("Hack Nerd Font Mono")
 config.font_size = 10
 config.line_height = 1.5
-config.text_min_contrast_ratio = 4.5 -- Available on Wezterm Nightly
+config.text_min_contrast_ratio = 2.5 -- Available on Wezterm Nightly, 4.5 recommended
 
 -- }}}
--- startup{{{
+
+-- startup {{{
 wezterm.on("gui-startup", function(cmd)
 	local tab, pane, window = mux.spawn_window(cmd or {})
 	window:gui_window():maximize()
@@ -77,12 +81,14 @@ wezterm.on("gui-startup", function(cmd)
 end)
 
 -- }}}
+
 -- window decorations {{{
 -- config.window_decorations = "TITLE | RESIZE"
 config.window_decorations = "RESIZE"
 
 -- }}}
--- window padding{{{
+
+-- window padding {{{
 config.window_padding = {
 	left = 5,
 	right = 5,
@@ -92,7 +98,9 @@ config.window_padding = {
 
 -- }}}
 
-config.enable_tab_bar = false
+config.enable_tab_bar = true
+config.hide_tab_bar_if_only_one_tab = true
+
 -- config.window_background_opacity = 0.9
 config.default_prog = { "pwsh" }
 config.max_fps = 120
