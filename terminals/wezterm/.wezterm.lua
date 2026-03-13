@@ -51,9 +51,10 @@ config.cursor_blink_rate = 600
 -- }}}
 -- font {{{
 -- config.font = wezterm.font("JetBrainsMonoNL Nerd Font")
-config.font = wezterm.font("JetBrains Mono")
-config.font_size = 11
+config.font = wezterm.font("Hack Nerd Font Mono")
+config.font_size = 10
 config.line_height = 1.5
+config.text_min_contrast_ratio = 4.5 -- Available on Wezterm Nightly
 
 -- }}}
 -- startup{{{
