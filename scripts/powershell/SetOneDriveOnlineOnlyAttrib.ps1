@@ -1,23 +1,5 @@
 $onedriveRoot = "$env:USERPROFILE\OneDrive"
 
-# $keepLocal = @(
-#     "Music\1_Soundtracks and Instrumentals"
-#     ,"Music\Alt-J"
-#     ,"Music\Atoms for Peace"
-#     ,"Music\Billy Corgan"
-#     ,"Music\Billy Mohler"
-#     ,"Music\Radiohead"
-#     ,"Music\Red Hot Chili Peppers"
-#     ,"Music\The Smashing Pumpkins"
-#     ,"Music\The Smile"
-#     ,"Music\Thom Yorke"
-#     ,"Music\Tool"
-#     ,"Music\Zwan"
-#     ,"0_book_notes"
-#     ,"0_books"
-#     ,"0_Notes"
-# )
-
 $keepLocal = Get-Content "$env:USERPROFILE\OneDrive\.onedrive-keep-local"
 
 # Expand to full paths for comparison
