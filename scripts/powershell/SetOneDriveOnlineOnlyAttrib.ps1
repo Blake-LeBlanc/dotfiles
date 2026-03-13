@@ -1,22 +1,24 @@
 $onedriveRoot = "$env:USERPROFILE\OneDrive"
 
-$keepLocal = @(
-    "Music\1_Soundtracks and Instrumentals"
-    ,"Music\Alt-J"
-    ,"Music\Atoms for Peace"
-    ,"Music\Billy Corgan"
-    ,"Music\Billy Mohler"
-    ,"Music\Radiohead"
-    ,"Music\Red Hot Chili Peppers"
-    ,"Music\The Smashing Pumpkins"
-    ,"Music\The Smile"
-    ,"Music\Thom Yorke"
-    ,"Music\Tool"
-    ,"Music\Zwan"
-    ,"0_book_notes"
-    ,"0_books"
-    ,"0_Notes"
-)
+# $keepLocal = @(
+#     "Music\1_Soundtracks and Instrumentals"
+#     ,"Music\Alt-J"
+#     ,"Music\Atoms for Peace"
+#     ,"Music\Billy Corgan"
+#     ,"Music\Billy Mohler"
+#     ,"Music\Radiohead"
+#     ,"Music\Red Hot Chili Peppers"
+#     ,"Music\The Smashing Pumpkins"
+#     ,"Music\The Smile"
+#     ,"Music\Thom Yorke"
+#     ,"Music\Tool"
+#     ,"Music\Zwan"
+#     ,"0_book_notes"
+#     ,"0_books"
+#     ,"0_Notes"
+# )
+
+$keepLocal = Get-Content "$env:USERPROFILE\OneDrive\.onedrive-keep-local"
 
 # Expand to full paths for comparison
 $keepLocalFull = $keepLocal | ForEach-Object { Join-Path $onedriveRoot $_ }
@@ -73,13 +75,22 @@ if ($confirm -ne 'y') {
 Write-Host "`nResetting attributes on non-kept files..." -ForegroundColor Yellow
 $resetCount = 0
 
+# Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
+#     $file = $_.FullName
+#     $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
+#
+#     if (-not $shouldKeep) {
+#         & attrib "+U" "-P" $file
+#         $resetCount++
+#     }
+# }
+
 Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
     $file = $_.FullName
     $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
-
     if (-not $shouldKeep) {
-        & attrib "+U" "-P" $file
-        $resetCount++
+        $result = & attrib "+U" "-P" $file 2>&1
+        if ($result) { Write-Host "Failed: $file" -ForegroundColor Red }
     }
 }
 
