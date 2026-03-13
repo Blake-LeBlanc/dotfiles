@@ -68,11 +68,17 @@ $resetCount = 0
 # }
 
 Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
-    $file = $_.FullName
-    $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
+    $file = $_
+    $filePath = $file.FullName
+    $shouldKeep = $keepLocalFull | Where-Object { $filePath.StartsWith($_) }
     if (-not $shouldKeep) {
-        $result = & attrib "+U" "-P" $file 2>&1
-        if ($result) { Write-Host "Failed: $file" -ForegroundColor Red }
+        try {
+            $file.Attributes = $file.Attributes -bor [System.IO.FileAttributes]::Offline
+            $file.Attributes = $file.Attributes -band -bnot [System.IO.FileAttributes]::Archive
+            $resetCount++
+        } catch {
+            Write-Host "Failed: $filePath - $($_.Exception.Message)" -ForegroundColor Red
+        }
     }
 }
 
