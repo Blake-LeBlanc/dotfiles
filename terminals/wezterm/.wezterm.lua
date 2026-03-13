@@ -99,7 +99,7 @@ config.window_padding = {
 -- }}}
 
 config.enable_tab_bar = true
-config.hide_tab_bar_if_only_one_tab = true
+config.hide_tab_bar_if_only_one_tab = false
 
 -- config.window_background_opacity = 0.9
 config.default_prog = { "pwsh" }
