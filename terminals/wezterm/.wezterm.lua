@@ -16,7 +16,7 @@ local config = wezterm.config_builder()
 -- NO config.color_scheme = "Clrs (Gogh)"
 -- config.color_scheme = "dawnfox"
 -- NO config.color_scheme = "dayfox"
--- config.color_scheme = "Default (light) (terminal.sexy)"
+config.color_scheme = "Default (light) (terminal.sexy)"
 -- config.color_scheme = "Ef-Cyprus"
 -- config.color_scheme = "Ef-Duo-Light"
 -- config.color_scheme = "Ef-Frost"
@@ -28,7 +28,7 @@ local config = wezterm.config_builder()
 -- NO config.color_scheme = "Github Light (Gogh)"
 -- config.color_scheme = "Google (light) (terminal.sexy)"
 -- config.color_scheme = "Grayscale (light) (terminal.sexy)"
-config.color_scheme = "Ivory Light (terminal.sexy)"
+-- config.color_scheme = "Ivory Light (terminal.sexy)"
 -- NO config.color_scheme = "Londontube (light) (terminal.sexy)"
 -- NO config.color_scheme = "Night Owlish Light"
 
@@ -57,7 +57,7 @@ config.cursor_blink_rate = 600
 config.font = wezterm.font("Hack Nerd Font Mono")
 config.font_size = 10
 config.line_height = 1.5
-config.text_min_contrast_ratio = 2.5 -- Available on Wezterm Nightly, 4.5 recommended
+config.text_min_contrast_ratio = 3.0 -- Available on Wezterm Nightly, 4.5 recommended
 
 -- }}}
 
