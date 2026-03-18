@@ -57,22 +57,18 @@ if ($confirm -ne 'y') {
 Write-Host "`nResetting attributes on non-kept files..." -ForegroundColor Yellow
 $resetCount = 0
 
-# Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
-#     $file = $_.FullName
-#     $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
-#
-#     if (-not $shouldKeep) {
-#         & attrib "+U" "-P" $file
-#         $resetCount++
-#     }
-# }
-
 Get-ChildItem -Path $onedriveRoot -Recurse -File | ForEach-Object {
-    $file = $_.FullName
-    $shouldKeep = $keepLocalFull | Where-Object { $file.StartsWith($_) }
-    if (-not $shouldKeep) {
-        $result = & attrib "+U" "-P" $file 2>&1
-        if ($result) { Write-Host "Failed: $file" -ForegroundColor Red }
+    $file = $_
+    $filePath = $file.FullName
+    $shouldKeep = $keepLocalFull | Where-Object { $filePath.StartsWith($_) }
+    if (-not $shouldKeep -and -not ($file.Attributes -band [System.IO.FileAttributes]::Offline)) {
+        try {
+            $file.Attributes = $file.Attributes -bor [System.IO.FileAttributes]::Offline
+            $file.Attributes = $file.Attributes -band -bnot [System.IO.FileAttributes]::Archive
+            $resetCount++
+        } catch {
+            Write-Host "Failed: $filePath - $($_.Exception.Message)" -ForegroundColor Red
+        }
     }
 }
 
