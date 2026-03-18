@@ -164,3 +164,9 @@ $env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"
 # pay-respects pwsh --alias F
 # pay-respects pwsh --alias F | Set-Content -Encoding UTF8 $PROFILE
 # Invoke-Expression ((& pay-respects pwsh --alias f) -join "`n")
+
+# NOTE: Trying to brighten up the selection colors, they're much too dark in wezterm
+# Set-PSReadLineOption -Colors @{
+#   ListPredictionSelectedColor = "`e[38;2;255;255;255m`e[48;2;60;90;130m"
+#   SelectionColor              = "`e[38;2;255;255;255m`e[48;2;60;90;130m"
+# }

@@ -79,7 +79,7 @@ config.default_cursor_style = "BlinkingBlock"
 config.font = wezterm.font("Hack Nerd Font Mono")
 config.font_size = 10
 config.line_height = 1.5
-config.text_min_contrast_ratio = 4.5 -- Available on Wezterm Nightly, 4.5 recommended
+config.text_min_contrast_ratio = 3.5 -- Available on Wezterm Nightly, 4.5 recommended
 
 -- }}}
 
@@ -126,5 +126,10 @@ config.hide_tab_bar_if_only_one_tab = false
 -- config.window_background_opacity = 0.9
 config.default_prog = { "pwsh" }
 config.max_fps = 120
+
+config.colors = {
+	selection_fg = "#ffffff",
+	selection_bg = "#4a6a8a",
+}
 
 return config
