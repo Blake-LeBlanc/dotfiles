@@ -39,16 +39,38 @@ config.color_scheme = "Default (light) (terminal.sexy)"
 -- }}}
 
 -- cursor {{{
+config.cursor_blink_rate = 500
 config.animation_fps = 60
 -- config.cursor_blink_ease_in = "EaseOut"
 -- config.cursor_blink_ease_out = "EaseOut"
+
 config.cursor_blink_ease_in = "Constant"
 config.cursor_blink_ease_out = "Constant"
+
+-- config.cursor_blink_ease_in = {
+-- 	CubicBezier = {
+-- 		0.0,
+-- 		0.0,
+-- 		0.1,
+-- 		1.0,
+-- 	},
+-- }
+
+-- config.cursor_blink_ease_out = {
+-- 	CubicBezier = {
+-- 		0.0,
+-- 		0.0,
+-- 		0.5,
+-- 		1.0,
+-- 	},
+-- }
+
 -- config.default_cursor_style = "SteadyBlock"
--- config.default_cursor_style = "SteadyUnderline"
 config.default_cursor_style = "BlinkingBlock"
+-- config.default_cursor_style = "SteadyUnderline"
 -- config.default_cursor_style = "BlinkingUnderline"
-config.cursor_blink_rate = 600
+-- config.default_cursor_style = "SteadyBar"
+-- config.default_cursor_style = "BlinkingBar"
 
 -- }}}
 
@@ -57,7 +79,7 @@ config.cursor_blink_rate = 600
 config.font = wezterm.font("Hack Nerd Font Mono")
 config.font_size = 10
 config.line_height = 1.5
-config.text_min_contrast_ratio = 3.0 -- Available on Wezterm Nightly, 4.5 recommended
+config.text_min_contrast_ratio = 3.5 -- Available on Wezterm Nightly, 4.5 recommended
 
 -- }}}
 
@@ -104,5 +126,10 @@ config.hide_tab_bar_if_only_one_tab = false
 -- config.window_background_opacity = 0.9
 config.default_prog = { "pwsh" }
 config.max_fps = 120
+
+config.colors = {
+	selection_fg = "#ffffff",
+	selection_bg = "#4a6a8a",
+}
 
 return config
