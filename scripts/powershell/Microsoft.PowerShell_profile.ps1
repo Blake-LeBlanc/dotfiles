@@ -164,3 +164,37 @@ $env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"
 # pay-respects pwsh --alias F
 # pay-respects pwsh --alias F | Set-Content -Encoding UTF8 $PROFILE
 # Invoke-Expression ((& pay-respects pwsh --alias f) -join "`n")
+
+Add-Type -AssemblyName Microsoft.VisualBasic
+
+function Remove-ItemToRecycleBin {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [string[]]$Path
+    )
+
+    process {
+        foreach ($p in $Path) {
+            $items = Get-Item -Path $p -ErrorAction SilentlyContinue
+
+            if ($null -eq $items) {
+                Write-Error ("'{0}' not found" -f $p)
+                continue
+            }
+
+            foreach ($item in $items) {
+                $fullPath = $item.FullName
+
+                if ($PSCmdlet.ShouldProcess($fullPath, 'Send to Recycle Bin')) {
+                    if ($item.PSIsContainer) {
+                        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($fullPath, 'OnlyErrorDialogs', 'SendToRecycleBin')
+                    } else {
+                        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($fullPath, 'OnlyErrorDialogs', 'SendToRecycleBin')
+                    }
+                    Write-Verbose "Sent '$fullPath' to the Recycle Bin"
+                }
+            }
+        }
+    }
+}
