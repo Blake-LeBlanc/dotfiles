@@ -206,9 +206,9 @@ function Remove-ItemToRecycleBin {
 }
 
 function dlmusic {
-    yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" @args
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" -a "$HOME\yt-dlp\music.txt" @args
 }
 
 function dltalks {
-    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" -a "$HOME\yt-dlp\talks.txt" @args
 }
