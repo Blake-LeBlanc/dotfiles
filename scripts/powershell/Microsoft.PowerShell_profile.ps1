@@ -204,3 +204,11 @@ function Remove-ItemToRecycleBin {
         }
     }
 }
+
+function dlmusic {
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" @args
+}
+
+function dltalks {
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
+}
