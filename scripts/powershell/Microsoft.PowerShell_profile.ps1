@@ -164,9 +164,55 @@ $env:LG_CONFIG_FILE = "$HOME\dotfiles\lazygit\config.yml"
 # pay-respects pwsh --alias F
 # pay-respects pwsh --alias F | Set-Content -Encoding UTF8 $PROFILE
 # Invoke-Expression ((& pay-respects pwsh --alias f) -join "`n")
-
+#
 # NOTE: Trying to brighten up the selection colors, they're much too dark in wezterm
 # Set-PSReadLineOption -Colors @{
 #   ListPredictionSelectedColor = "`e[38;2;255;255;255m`e[48;2;60;90;130m"
 #   SelectionColor              = "`e[38;2;255;255;255m`e[48;2;60;90;130m"
 # }
+
+Add-Type -AssemblyName Microsoft.VisualBasic
+
+function Remove-ItemToRecycleBin {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [string[]]$Path
+    )
+
+    process {
+        foreach ($p in $Path) {
+            $items = Get-Item -Path $p -ErrorAction SilentlyContinue
+
+            if ($null -eq $items) {
+                Write-Error ("'{0}' not found" -f $p)
+                continue
+            }
+
+            foreach ($item in $items) {
+                $fullPath = $item.FullName
+
+                if ($PSCmdlet.ShouldProcess($fullPath, 'Send to Recycle Bin')) {
+                    if ($item.PSIsContainer) {
+                        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($fullPath, 'OnlyErrorDialogs', 'SendToRecycleBin')
+                    } else {
+                        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($fullPath, 'OnlyErrorDialogs', 'SendToRecycleBin')
+                    }
+                    Write-Verbose "Sent '$fullPath' to the Recycle Bin"
+                }
+            }
+        }
+    }
+}
+
+function dlmusic {
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" -a "$HOME\yt-dlp\music.txt" @args
+}
+
+function dltalks {
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" -a "$HOME\yt-dlp\talks.txt" @args
+}
+
+function dlvideo {
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\video.conf" @args
+}
