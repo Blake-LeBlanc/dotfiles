@@ -210,7 +210,8 @@ function dlmusic {
 }
 
 function dltalks {
-    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" -a "$HOME\yt-dlp\talks.txt" @args
+    # yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" -a "$HOME\yt-dlp\talks.txt" @args
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
 }
 
 function dlvideo {
