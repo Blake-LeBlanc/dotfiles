@@ -223,7 +223,7 @@ function dltalkstoopus {
     yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
 
     Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
-        freaccmd -e opus -d $_.DirectoryName -- --mode voice --vbr --bitrate 8 $_.FullName
+        freaccmd -e opus -d $_.DirectoryName -- --vbr --bitrate 8 $_.FullName
     }
 
     Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
