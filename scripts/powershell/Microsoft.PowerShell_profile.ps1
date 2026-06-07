@@ -210,10 +210,23 @@ function dlmusic {
 }
 
 function dltalks {
-    # yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" -a "$HOME\yt-dlp\talks.txt" @args
     yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
 }
 
 function dlvideo {
     yt-dlp --config-location "$env:APPDATA\yt-dlp\video.conf" @args
+}
+
+function dltalkstoopus {
+    $talksDir = "$env:USERPROFILE\Downloads\yt-dlp\talks"
+
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
+
+    Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
+        freaccmd -e opus -d $_.DirectoryName -- --mode voice --vbr --bitrate 8 $_.FullName
+    }
+
+    Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
+        Remove-ItemToRecycleBin $_.FullName
+    }
 }
