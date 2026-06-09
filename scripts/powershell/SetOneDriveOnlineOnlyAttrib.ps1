@@ -1,6 +1,11 @@
-$onedriveRoot = "$env:USERPROFILE\OneDrive"
+# $onedriveRoot = "$env:USERPROFILE\OneDrive"
+$onedriveRoot = "D:\OneDrive\"
 
-$keepLocal = Get-Content "$env:USERPROFILE\OneDrive\.onedrive-keep-local"
+# $keepLocal = Get-Content "$env:USERPROFILE\OneDrive\.onedrive-keep-local"
+
+$keepLocalFilename = ".onedrive-keep-local"
+$keepLocalFilepath = $onedriveRoot + $keepLocalFilename
+$keepLocal = Get-Content $keepLocalFilepath
 
 # Expand to full paths for comparison
 $keepLocalFull = $keepLocal | ForEach-Object { Join-Path $onedriveRoot $_ }
