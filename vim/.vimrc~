@@ -20,9 +20,13 @@ set encoding=utf-8
 
 " vim {{{
 if !has('nvim')
-"setup {{{
-  if empty(glob('~/.vim/autoload/plug.vim'))
-    silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  " setup {{{
+  if empty(glob('~/.vim/autoload/plug.vim')) && empty(glob('~/vimfiles/autoload/plug.vim'))
+    if has('win32') || has('win64')
+      silent execute 'powershell -Command "iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | ni $HOME/vimfiles/autoload/plug.vim -Force"'
+    else
+      silent execute "!curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    endif
     augroup PlugVim
       autocmd!
       autocmd VimEnter * PlugInstall | source $MYVIMRC
@@ -4162,7 +4166,7 @@ endif
   " colorscheme base16-tomorrow-night-eighties
   " colorscheme base16-twilight
   " colorscheme challenger_deep
-  colorscheme distilled
+  " colorscheme distilled
   " colorscheme dogrun
   " colorscheme dracula
   " colorscheme fogbell_lite
@@ -4229,7 +4233,7 @@ endif
   " colorscheme Greymatters
   " colorscheme gruvbox-material
   " colorscheme mountaineer-light
-  " colorscheme nofrils-light
+  colorscheme nofrils-light
   " colorscheme nofrils-sepia
   " colorscheme off
   " colorscheme Oldlace
@@ -4308,22 +4312,22 @@ endif
   " set relativenumber " enable relative line numbers, see :h relativenumber for more info
 
   " NOTE: The below toggles relative numbering
-  " set number relativenumber
-  "   function! ToggleRelativeOn()
-  "     set rnu!
-  "     set nu
-  "   endfunction
+  set number relativenumber
+    function! ToggleRelativeOn()
+      set rnu!
+      set nu
+    endfunction
 
-  "   augroup RelativeNumber
-  "     autocmd!
-  "     " autocmd FocusLost * call ToggleRelativeOn()
-  "     " autocmd FocusGained * call ToggleRelativeOn()
-  "     " autocmd InsertEnter * call ToggleRelativeOn()
-  "     " autocmd InsertLeave * call ToggleRelativeOn()
+    augroup RelativeNumber
+      autocmd!
+      " autocmd FocusLost * call ToggleRelativeOn()
+      " autocmd FocusGained * call ToggleRelativeOn()
+      " autocmd InsertEnter * call ToggleRelativeOn()
+      " autocmd InsertLeave * call ToggleRelativeOn()
 
-  "     autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-  "     autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
-  "   augroup END
+      autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+      autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
+    augroup END
 
   " set foldcolumn=3
     " NOTE: acts as a left side margin/padding, very cool!
@@ -4485,8 +4489,8 @@ endif
   nnoremap J mzJ`z
   nnoremap { {zz
   nnoremap } }zz
-  nnoremap ]c ]czz
-  nnoremap [c [czz
+  " nnoremap ]c ]czz
+  " nnoremap [c [czz
   "   NOTE: Seems to conflict with moving through gitgutter chunks
 
   " undo break points
