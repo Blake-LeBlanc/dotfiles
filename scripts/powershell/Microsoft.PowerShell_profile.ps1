@@ -209,7 +209,7 @@ function dlm {
     yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" -a "$HOME\yt-dlp\music.txt" @args
 }
 
-function dltmo {
+function dlmo {
     $downloadDir = "$env:USERPROFILE\Downloads\yt-dlp\music"
 
     yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" @args
