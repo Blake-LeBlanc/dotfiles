@@ -1,7 +1,12 @@
 line-height = 1.75
+
 [editor]
 program = "neovim"
 
 [fonts]
 size = 12
 family = "JetBrains Mono NL"
+
+[developer]
+log-level = "INFO"
+enable-log-file = true
