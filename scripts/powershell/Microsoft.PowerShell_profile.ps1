@@ -208,6 +208,20 @@ function dlm {
     yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" -a "$HOME\yt-dlp\music.txt" @args
 }
 
+function dlmo {
+    $downloadDir = "$env:USERPROFILE\Downloads\yt-dlp\music"
+
+    yt-dlp --config-location "$env:APPDATA\yt-dlp\music.conf" @args
+
+    Get-ChildItem -Path $downloadDir -Recurse -Filter "*.mp3" | ForEach-Object {
+        freaccmd -e opus -d $_.DirectoryName -- --vbr --bitrate 96 $_.FullName
+    }
+
+    Get-ChildItem -Path $downloadDir -Recurse -Filter "*.mp3" | ForEach-Object {
+        Remove-ItemToRecycleBin $_.FullName
+    }
+}
+
 function dlt {
     yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
 }
@@ -217,15 +231,15 @@ function dlv {
 }
 
 function dlto {
-    $talksDir = "$env:USERPROFILE\Downloads\yt-dlp\talks"
+    $downloadDir = "$env:USERPROFILE\Downloads\yt-dlp\talks"
 
     yt-dlp --config-location "$env:APPDATA\yt-dlp\talks.conf" @args
 
-    Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
+    Get-ChildItem -Path $downloadDir -Recurse -Filter "*.mp3" | ForEach-Object {
         freaccmd -e opus -d $_.DirectoryName -- --vbr --bitrate 8 $_.FullName
     }
 
-    Get-ChildItem -Path $talksDir -Recurse -Filter "*.mp3" | ForEach-Object {
+    Get-ChildItem -Path $downloadDir -Recurse -Filter "*.mp3" | ForEach-Object {
         Remove-ItemToRecycleBin $_.FullName
     }
 }
