@@ -76,7 +76,7 @@ if len(sys.argv) > 1:
 else:
     input_file_str = input("Enter the path to your .srt file: ").strip().strip("\"'")
 
-input_path = Path(input_file_str)
+input_path = Path(input_file_str).expanduser().resolve()
 
 if not input_path.exists():
     print(f"Error: File '{input_path}' not found!")
