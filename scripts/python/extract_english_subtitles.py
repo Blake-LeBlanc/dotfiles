@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# claude-opus-5.5
 
 import json
 import os
@@ -121,3 +122,151 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# #!/usr/bin/env python3
+# # grok-4.7-xhigh
+#
+# import argparse
+# import json
+# import subprocess
+# from pathlib import Path
+#
+#
+# IMAGE_CODECS = {
+#     "hdmv_pgs_subtitle",
+#     "dvd_subtitle",
+#     "dvb_subtitle",
+#     "xsub",
+# }
+#
+#
+# def run(command, **kwargs):
+#     try:
+#         return subprocess.run(command, check=True, **kwargs)
+#     except FileNotFoundError:
+#         raise SystemExit(f"Required program not found: {command[0]}")
+#     except subprocess.CalledProcessError as exc:
+#         raise SystemExit(
+#             exc.stderr or f"{command[0]} failed with exit code {exc.returncode}."
+#         )
+#
+#
+# def is_english(stream):
+#     language = stream.get("tags", {}).get("language", "")
+#     language = language.lower().replace("_", "-")
+#     return language.split("-", 1)[0] in {"eng", "en"}
+#
+#
+# def preference(stream):
+#     disposition = stream.get("disposition", {})
+#     return (
+#         stream.get("codec_name") in IMAGE_CODECS,  # Prefer text subtitles.
+#         disposition.get("forced", 0),  # Prefer non-forced tracks.
+#         -disposition.get("default", 0),  # Then prefer default tracks.
+#         stream["index"],  # Finally, lowest index.
+#     )
+#
+#
+# def movie_path_from_prompt():
+#     entered = input("Movie file path: ").strip()
+#     if len(entered) >= 2 and entered[0] == entered[-1] and entered[0] in {"'", '"'}:
+#         entered = entered[1:-1].strip()
+#     if not entered:
+#         raise SystemExit("No movie file provided.")
+#     return Path(entered)
+#
+#
+# parser = argparse.ArgumentParser(
+#     description="Extract an English subtitle stream as SRT."
+# )
+# parser.add_argument(
+#     "movie",
+#     nargs="?",
+#     type=Path,
+#     help="Movie file. If omitted, you will be prompted for the path.",
+# )
+# parser.add_argument(
+#     "-o",
+#     "--output",
+#     type=Path,
+#     help="Output filename; defaults to the movie filename with .srt extension.",
+# )
+# parser.add_argument(
+#     "--stream",
+#     type=int,
+#     help="Choose an absolute subtitle stream index instead of auto-selecting.",
+# )
+# parser.add_argument(
+#     "--overwrite",
+#     action="store_true",
+#     help="Allow overwriting an existing output file.",
+# )
+# args = parser.parse_args()
+#
+# source = (args.movie or movie_path_from_prompt()).expanduser().resolve()
+# output = (args.output or source.with_suffix(".srt")).expanduser().resolve()
+#
+# if not source.is_file():
+#     raise SystemExit(f"Movie file not found: {source}")
+# if source == output:
+#     raise SystemExit("Input and output must be different files.")
+#
+# probe = run(
+#     [
+#         "ffprobe",
+#         "-v",
+#         "error",
+#         "-select_streams",
+#         "s",
+#         "-show_streams",
+#         "-of",
+#         "json",
+#         str(source),
+#     ],
+#     capture_output=True,
+#     text=True,
+# )
+# streams = json.loads(probe.stdout).get("streams", [])
+#
+# if args.stream is not None:
+#     candidates = [s for s in streams if s["index"] == args.stream]
+# else:
+#     candidates = [s for s in streams if is_english(s)]
+#
+# if not candidates:
+#     raise SystemExit(
+#         "No matching subtitle stream found. "
+#         "If language tags are missing, use --stream INDEX."
+#     )
+#
+# selected = min(candidates, key=preference)
+# index = selected["index"]
+# codec = selected.get("codec_name", "unknown")
+#
+# if codec in IMAGE_CODECS:
+#     raise SystemExit(
+#         f"Stream 0:{index} uses image-based subtitles ({codec}). "
+#         "Converting these to SRT requires OCR."
+#     )
+#
+# print(f"Extracting stream 0:{index} ({codec}) -> {output}", flush=True)
+#
+# run(
+#     [
+#         "ffmpeg",
+#         "-hide_banner",
+#         "-loglevel",
+#         "error",
+#         "-nostdin",
+#         "-y" if args.overwrite else "-n",
+#         "-i",
+#         str(source),
+#         "-map",
+#         f"0:{index}",
+#         "-c:s",
+#         "srt",
+#         "-f",
+#         "srt",
+#         str(output),
+#     ]
+# )
