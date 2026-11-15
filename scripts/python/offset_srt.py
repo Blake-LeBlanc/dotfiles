@@ -1,6 +1,7 @@
-import os
 import re
+import sys
 from datetime import datetime, timedelta
+from pathlib import Path
 
 
 def parse_timestamp(timestamp):
@@ -22,12 +23,28 @@ def format_timestamp(td):
     return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
 
+def read_srt_file(path: Path) -> str:
+    """Read an SRT file trying common subtitle encodings."""
+    encodings_to_try = ["utf-8-sig", "cp1252", "latin-1"]
+    for enc in encodings_to_try:
+        try:
+            return path.read_text(encoding=enc)
+        except UnicodeDecodeError:
+            continue
+    # Last resort: read as utf-8 and replace unreadable characters
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
 def offset_srt(input_file, output_file, offset_seconds):
     """Offset all timestamps in an SRT file"""
     offset = timedelta(seconds=offset_seconds)
 
-    with open(input_file, "r", encoding="utf-8-sig") as f:
-        content = f.read()
+    input_path = Path(input_file) if not isinstance(input_file, Path) else input_file
+    output_path = (
+        Path(output_file) if not isinstance(output_file, Path) else output_file
+    )
+
+    content = read_srt_file(input_path)
 
     # Regex pattern to match SRT timestamp lines
     timestamp_pattern = r"(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})"
@@ -35,44 +52,36 @@ def offset_srt(input_file, output_file, offset_seconds):
     def replace_timestamp(match):
         start_ts = match.group(1)
         end_ts = match.group(2)
-
-        # Parse timestamps
         start_td = parse_timestamp(start_ts)
         end_td = parse_timestamp(end_ts)
-
-        # Apply offset
         new_start = start_td + offset
         new_end = end_td + offset
-
-        # Handle negative timestamps (set to 00:00:00,000)
         if new_start.total_seconds() < 0:
             new_start = timedelta(0)
         if new_end.total_seconds() < 0:
             new_end = timedelta(0)
-
-        # Format back to string
         return f"{format_timestamp(new_start)} --> {format_timestamp(new_end)}"
 
-    # Replace all timestamps
     modified_content = re.sub(timestamp_pattern, replace_timestamp, content)
 
-    # Write to output file
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(modified_content)
+    output_path.write_text(modified_content, encoding="utf-8")
 
 
 # Prompt user for input
 print("SRT Timestamp Offset Tool")
 print("=" * 40)
 
-input_file = input("Enter the path to your .srt file: ").strip()
+if len(sys.argv) > 1:
+    input_file_str = sys.argv[1]
+else:
+    input_file_str = input("Enter the path to your .srt file: ").strip().strip("\"'")
 
-# Check if file exists
-if not os.path.exists(input_file):
-    print(f"Error: File '{input_file}' not found!")
-    exit(1)
+input_path = Path(input_file_str)
 
-# Get offset amount
+if not input_path.exists():
+    print(f"Error: File '{input_path}' not found!")
+    sys.exit(1)
+
 while True:
     try:
         offset_seconds = float(
@@ -84,13 +93,14 @@ while True:
     except ValueError:
         print("Please enter a valid number!")
 
-# Generate output filename
-base_name = os.path.splitext(input_file)[0]
-output_file = f"{base_name}_offset.srt"
+# Generate output filename with timestamp suffix
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+output_path = (
+    input_path.parent / f"{input_path.stem}_offset_{timestamp}{input_path.suffix}"
+)
 
-# Run the offset
-offset_srt(input_file, output_file, offset_seconds)
+offset_srt(input_path, output_path, offset_seconds)
 
 print("\n" + "=" * 40)
 print(f"Successfully offset timestamps by {offset_seconds} second(s)!")
-print(f"Output saved to: {output_file}")
+print(f"Output saved to: {output_path}")
